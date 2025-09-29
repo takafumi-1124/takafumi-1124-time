@@ -1,7 +1,7 @@
-streamlit
+streamlit==1.38.0
 pandas
 numpy
-matplotlib
+matplotlib>=3.7.0
 japanize-matplotlib
 pypfopt
 openpyxl
