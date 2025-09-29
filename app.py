@@ -40,18 +40,18 @@ def ahp_calculation(pairwise_matrix):
 
 
 st.set_page_config(page_title="ESG投資意思決定", layout="centered")
-st.markdown(
-    """
-    <meta http-equiv="Content-Language" content="ja">
-    <meta name="google" content="notranslate">
-    <style>
-    body, div, span, table {
-        class: notranslate;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <meta http-equiv="Content-Language" content="ja">
+#     <meta name="google" content="notranslate">
+#     <style>
+#     body, div, span, table {
+#         class: notranslate;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 st.title("\U0001f331 ESG投資意思決定サイト")
 
 tabs = st.tabs(["① ユーザー情報", "② Big Five 診断", "③ ESG優先度測定", "④ 投資提案"])
@@ -380,6 +380,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
