@@ -255,15 +255,15 @@ try:
         scopes=scope
     )
     st.write("✅ 認証: Streamlit Secrets 経由で成功しました。")
-except Exception as e:
-    # ✅ ローカル開発用のフォールバック
-    # st.warning("⚠️ Streamlit Secretsが見つからないため、ローカルのcredentials.jsonを使用します。")
-    with open("credentials.json", "r") as f:
-        creds_json = json.load(f)
-    creds = service_account.Credentials.from_service_account_info(
-        creds_json,
-        scopes=scope
-    )
+# except Exception as e:
+#     # ✅ ローカル開発用のフォールバック
+#     # st.warning("⚠️ Streamlit Secretsが見つからないため、ローカルのcredentials.jsonを使用します。")
+#     with open("credentials.json", "r") as f:
+#         creds_json = json.load(f)
+#     creds = service_account.Credentials.from_service_account_info(
+#         creds_json,
+#         scopes=scope
+#     )
 
 # --- gspreadクライアント作成 ---
 gc = gspread.authorize(creds)
@@ -485,6 +485,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
