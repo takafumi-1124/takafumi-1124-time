@@ -3,13 +3,25 @@ import pandas as pd
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
-import matplotlib.style as style
-style.use("default")  # Streamlit Cloud 環境でも安全
+import matplotlib as mpl
 
+# --- seaborn-deep エラー対策 ---
+try:
+    plt.style.use("default")  # seaborn系スタイルを解除
+    mpl.rcParams.update(mpl.rcParamsDefault)
+except OSError:
+    pass
+
+# --- PyPortfolioOptが内部で使うpltを上書き ---
+import pypfopt.plotting as pplot
+pplot.plt = plt
+
+# --- その他のインポート ---
 from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
 import japanize_matplotlib
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
 
 
 # スケール生成
@@ -438,6 +450,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
