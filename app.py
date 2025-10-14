@@ -2,6 +2,31 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import itertools
+import streamlit as st
+import pandas as pd
+import numpy as np
+import itertools
+# 🔽 ここに追加してください
+# === seaborn-deepエラー完全対策 ===
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.style as mstyle
+_original_style_use = plt.style.use
+
+def safe_style_use(style_name):
+    if style_name == "seaborn-deep":
+        print("⚠ seaborn-deep style skipped (not available on Streamlit Cloud).")
+        return
+    return _original_style_use(style_name)
+
+plt.style.use = safe_style_use
+mpl.style.use = safe_style_use
+
+# 🔼 ここまでを追加
+
+from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
+import japanize_matplotlib
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns  # ← seabornを先に読み込む
@@ -460,6 +485,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
