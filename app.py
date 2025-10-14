@@ -249,24 +249,19 @@ scope = [
 ]
 
 try:
-    # ✅ Streamlit Cloud または secrets.toml に認証情報がある場合
     creds = service_account.Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
         scopes=scope
     )
     st.write("✅ 認証: Streamlit Secrets 経由で成功しました。")
-# except Exception as e:
-#     # ✅ ローカル開発用のフォールバック
-#     # st.warning("⚠️ Streamlit Secretsが見つからないため、ローカルのcredentials.jsonを使用します。")
-#     with open("credentials.json", "r") as f:
-#         creds_json = json.load(f)
-#     creds = service_account.Credentials.from_service_account_info(
-#         creds_json,
-#         scopes=scope
-#     )
+except Exception:
+    with open("credentials.json", "r") as f:
+        creds_json = json.load(f)
+    creds = service_account.Credentials.from_service_account_info(creds_json, scopes=scope)
+    st.write("✅ 認証: ローカル credentials.json 経由で成功しました。")
 
-# --- gspreadクライアント作成 ---
 gc = gspread.authorize(creds)
+
 
 # --- スプレッドシート接続 ---
 spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1WVOWgp5Q4TlQu_HhX3TJ5F0beSw1zkcZfcxiiVhn3Yk/edit?gid=0#gid=0")
@@ -485,6 +480,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
