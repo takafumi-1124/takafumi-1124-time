@@ -4,23 +4,29 @@ import numpy as np
 import itertools
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import seaborn as sns  # ← seabornを先に読み込む
 
 # --- seaborn-deep エラー対策 ---
 try:
     plt.style.use("default")  # seaborn系スタイルを解除
     mpl.rcParams.update(mpl.rcParamsDefault)
+    sns.set_style("whitegrid")  # seaborn側も安全なスタイルに固定
 except OSError:
     pass
 
-# --- PyPortfolioOptが内部で使うpltを上書き ---
-import pypfopt.plotting as pplot
-pplot.plt = plt
+# --- PyPortfolioOpt 読み込み前に対策を適用 ---
+import matplotlib.style as mstyle
+mstyle.available = ["default", "classic"]  # seaborn-deepを無効化リストにする
+
+import pypfopt.plotting as pplot  # ← これが問題のモジュール
+pplot.plt = plt  # pltを上書き
 
 # --- その他のインポート ---
-from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
+from pypfopt import expected_returns, risk_models, EfficientFrontier
 import japanize_matplotlib
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
 
 # ✅ seabornを強制的にインポート（PyPortfolioOptが暗黙的に呼ぶため）
 import seaborn as sns
@@ -454,6 +460,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
