@@ -3,7 +3,10 @@ pandas
 numpy
 matplotlib
 japanize-matplotlib
-git+https://github.com/robertmartin8/PyPortfolioOpt.git
+PyPortfolioOpt==1.5.5
 openpyxl
 gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
 oauth2client
