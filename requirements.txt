@@ -1,9 +1,9 @@
 streamlit==1.38.0
 pandas
 numpy
-matplotlib>=3.7.0
+matplotlib
 japanize-matplotlib
-pypfopt
+git+https://github.com/robertmartin8/PyPortfolioOpt.git
 openpyxl
 gspread
 oauth2client
