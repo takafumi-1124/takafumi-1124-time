@@ -2,7 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import itertools
-import matplotlib.pyplot as plt  # ← グラフ描画のために必要
+import matplotlib.pyplot as plt
+import matplotlib.style as style
+style.use("default")  # Streamlit Cloud 環境でも安全
+
 from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
 import japanize_matplotlib
 import gspread
@@ -435,6 +438,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
