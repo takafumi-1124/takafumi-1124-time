@@ -22,6 +22,10 @@ import japanize_matplotlib
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+# ✅ seabornを強制的にインポート（PyPortfolioOptが暗黙的に呼ぶため）
+import seaborn as sns
+sns.set_style("whitegrid")
+
 
 
 # スケール生成
@@ -450,6 +454,7 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
+
 
 
 
