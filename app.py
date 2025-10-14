@@ -153,22 +153,77 @@ with tabs[2]:
         st.write(f"整合性比率 (CR): {cr:.3f}")
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
+
+    st.divider()  # 区切り線
+
+    st.subheader("AHP結果のまとめ")
+
+    # 大分類で最も重視されているものを特定
+    top_category = labels_main[np.argmax(priorities_main)]
+
+    # 小分類の中で最も重視されているものを特定
+    if top_category in all_priorities:
+        top_sub = max(all_priorities[top_category].items(), key=lambda x: x[1])[0]
+        st.markdown(f"""
+        あなたが最も重視しているのは **「{top_category}」** です。  
+        その中でも特に **「{top_sub}」** を重視している傾向が見られます。
+        """)
+    else:
+        st.info("各カテゴリーの入力が完了すると、結果が表示されます。")
+
+
 # ④ 投資提案
 @st.cache_data
 def load_data():
     return pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
 
 
-df = load_data()
-# 👇ここに認証コードを追加
-# Google Sheets API認証
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
+import os
+import json
+import streamlit as st
+import pandas as pd
+from google.oauth2 import service_account
+import gspread
 
-# スプレッドシートを開く
-spreadsheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1WVOWgp5Q4TlQu_HhX3TJ5F0beSw1zkcZfcxiiVhn3Yk/edit?gid=0#gid=0")
-worksheet = spreadsheet.sheet1  # 1枚目のシート
+# --- Excelファイル読み込み ---
+@st.cache_data
+def load_data():
+    return pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
+
+df = load_data()
+
+# --- Google Sheets 認証 ---
+scope = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+try:
+    # ✅ Streamlit Cloud または secrets.toml に認証情報がある場合
+    creds = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=scope
+    )
+    st.write("✅ 認証: Streamlit Secrets 経由で成功しました。")
+except Exception as e:
+    # ✅ ローカル開発用のフォールバック
+    # st.warning("⚠️ Streamlit Secretsが見つからないため、ローカルのcredentials.jsonを使用します。")
+    with open("credentials.json", "r") as f:
+        creds_json = json.load(f)
+    creds = service_account.Credentials.from_service_account_info(
+        creds_json,
+        scopes=scope
+    )
+
+# --- gspreadクライアント作成 ---
+gc = gspread.authorize(creds)
+
+# --- スプレッドシート接続 ---
+spreadsheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1WVOWgp5Q4TlQu_HhX3TJ5F0beSw1zkcZfcxiiVhn3Yk/edit?gid=0#gid=0")
+worksheet = spreadsheet.sheet1  # 最初のシートを選択
+
+# st.write("✅ Googleスプレッドシートに接続しました。")
+
 
 
 with tabs[3]:
@@ -380,7 +435,6 @@ with tabs[3]:
                 worksheet.append_row(row_data, value_input_option="USER_ENTERED")
 
                 st.success("保存しました！")
-
 
 
 
