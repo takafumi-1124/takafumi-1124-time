@@ -17,14 +17,15 @@ except OSError:
     pass
 
 # ✅ ここでPyPortfolioOptを後からimport（順番が重要）
-from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
+from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting # <- ここでエラーが発生するスタイルが内部で設定される
 
-# 💡 修正箇所: pypfoptのimport後にスタイルを上書き/リセットする 💡
-# pypfoptが内部で設定したスタイル（seaborn-deep）をここで打ち消します
+# 💡 重要な修正: pypfoptのimport直後にスタイルを上書き/リセットする 💡
+# pypfoptが設定したスタイルを、安全なものに強制的に戻します。
 try:
     plt.style.use("default") 
 except OSError:
-    mpl.rcParams.update(mpl.rcParamsDefault)
+    # 万が一defaultもダメな場合に備えて、設定全体をデフォルトに戻す
+    mpl.rcParams.update(mpl.rcParamsDefault) 
 
 import japanize_matplotlib
 import gspread
@@ -216,6 +217,7 @@ with tabs[3]:
         ]
         worksheet.append_row(row_data, value_input_option="USER_ENTERED")
         st.success("✅ 結果をスプレッドシートに保存しました！")
+
 
 
 
