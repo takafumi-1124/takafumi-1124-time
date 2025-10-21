@@ -9,7 +9,7 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-# --- seaborn関連エラー対策 ---
+# --- seaborn関連エラー対策（pypfoptより前に一度実行） ---
 mpl.rcParams.update(mpl.rcParamsDefault)
 try:
     plt.style.use("default")
@@ -17,11 +17,19 @@ except OSError:
     pass
 
 # ✅ ここでPyPortfolioOptを後からimport（順番が重要）
-from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
+from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting # <- ここでエラーの元となるスタイルが内部で設定される
+
+# 💡 修正箇所: pypfoptのimport後にスタイルを上書き/リセットする 💡
+try:
+    # pypfoptが設定したスタイルを安全なもの（default）で上書き
+    plt.style.use("default") 
+except OSError:
+    # スタイルファイルが見つからない場合に備えて、rcParamsをデフォルトに戻す
+    mpl.rcParams.update(mpl.rcParamsDefault) 
+
 import japanize_matplotlib
 import gspread
 from google.oauth2 import service_account
-
 
 
 # ============================================
@@ -207,4 +215,5 @@ with tabs[3]:
         ]
         worksheet.append_row(row_data, value_input_option="USER_ENTERED")
         st.success("✅ 結果をスプレッドシートに保存しました！")
+
 
