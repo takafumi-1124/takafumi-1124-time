@@ -227,7 +227,7 @@ with tabs[3]:
     st.dataframe(result[["企業名", "スコア"]])
 
     # === 株価データ読み込み ===
-    df_price = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv, index_col=0, parse_dates=True)
+    df_price = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv", index_col=0, parse_dates=True)
     selected_companies = result["企業名"].tolist()
     df_price = df_price[selected_companies].dropna()
 
@@ -316,4 +316,5 @@ with tabs[3]:
     ax.set_ylabel("リターン")
 
     st.pyplot(fig)
+
 
