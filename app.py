@@ -3,18 +3,28 @@ import pandas as pd
 import numpy as np
 import itertools
 
-# === seaborn-deepエラー回避パッチ ===
+# === seaborn-deepエラー完全対策（RecursionErrorなし版） ===
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+# ① まず元の関数を退避
 _original_style_use = plt.style.use
+
+# ② safe_style_useを定義
 def safe_style_use(style_name):
     if style_name == "seaborn-deep":
         print("⚠ seaborn-deep style skipped (not available on Streamlit Cloud).")
         return
     return _original_style_use(style_name)
+
+# ③ 上書き
 plt.style.use = safe_style_use
 mpl.style.use = safe_style_use
+
+# ④ 最後にデフォルトスタイルを直接適用（再帰しないように _original_style_use を使う）
+_original_style_use("default")
+mpl.rcParams.update(mpl.rcParamsDefault)
+
 
 
 import matplotlib.pyplot as plt
@@ -346,6 +356,7 @@ with tabs[3]:
     ax.set_ylabel("リターン")
 
     st.pyplot(fig)
+
 
 
 
