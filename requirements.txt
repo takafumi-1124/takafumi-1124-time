@@ -6,8 +6,6 @@ seaborn
 pypfopt
 japanize-matplotlib
 gspread
-oauth2client
+gspread-dataframe
 google-auth
 google-auth-oauthlib
-
-
