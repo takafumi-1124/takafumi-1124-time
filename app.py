@@ -2,6 +2,21 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import itertools
+
+# === seaborn-deepエラー回避パッチ ===
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+_original_style_use = plt.style.use
+def safe_style_use(style_name):
+    if style_name == "seaborn-deep":
+        print("⚠ seaborn-deep style skipped (not available on Streamlit Cloud).")
+        return
+    return _original_style_use(style_name)
+plt.style.use = safe_style_use
+mpl.style.use = safe_style_use
+
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.style as mstyle
@@ -331,6 +346,7 @@ with tabs[3]:
     ax.set_ylabel("リターン")
 
     st.pyplot(fig)
+
 
 
 
