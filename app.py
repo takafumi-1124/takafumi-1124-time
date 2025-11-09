@@ -5,7 +5,7 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.style as mstyle
-import seaborn as sns
+#import seaborn as sns
 from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
 import japanize_matplotlib
 import gspread
@@ -331,6 +331,7 @@ with tabs[3]:
     ax.set_ylabel("リターン")
 
     st.pyplot(fig)
+
 
 
 
