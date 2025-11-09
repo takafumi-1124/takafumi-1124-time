@@ -1,36 +1,29 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import itertools
-
-# === seaborn-deepエラー完全対策（RecursionErrorなし版） ===
+# === seaborn-deepエラー完全対策（最終安定版） ===
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-# ① まず元の関数を退避
-_original_style_use = plt.style.use
+# matplotlibの初期化を先に行う（ここがポイント）
+plt.style.use("default")
+mpl.rcParams.update(mpl.rcParamsDefault)
 
-# ② safe_style_useを定義
+# seaborn-deepを安全にスキップする設定
+_original_style_use = plt.style.use
 def safe_style_use(style_name):
     if style_name == "seaborn-deep":
         print("⚠ seaborn-deep style skipped (not available on Streamlit Cloud).")
         return
     return _original_style_use(style_name)
-
-# ③ 上書き
 plt.style.use = safe_style_use
 mpl.style.use = safe_style_use
 
-# ④ 最後にデフォルトスタイルを直接適用（再帰しないように _original_style_use を使う）
-_original_style_use("default")
-mpl.rcParams.update(mpl.rcParamsDefault)
-
-
-
-import matplotlib.pyplot as plt
-import matplotlib as mpl
+# === 通常のimport ===
+import streamlit as st
+import pandas as pd
+import numpy as np
+import itertools
 import matplotlib.style as mstyle
-#import seaborn as sns
+# import seaborn as sns  ← コメントアウトOK（Cloudでは不要）
+
 from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
 import japanize_matplotlib
 import gspread
@@ -38,6 +31,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2 import service_account
 import json
 import os
+
 
 # === seaborn-deepエラー完全対策 ===
 _original_style_use = plt.style.use
@@ -356,6 +350,7 @@ with tabs[3]:
     ax.set_ylabel("リターン")
 
     st.pyplot(fig)
+
 
 
 
