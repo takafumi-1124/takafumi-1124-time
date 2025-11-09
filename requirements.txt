@@ -1,14 +1,13 @@
-streamlit==1.38.0
+streamlit
 pandas
 numpy
 matplotlib
+seaborn
+pypfopt
 japanize-matplotlib
-PyPortfolioOpt==1.5.5
-openpyxl
 gspread
+oauth2client
 google-auth
 google-auth-oauthlib
-google-auth-httplib2
-oauth2client
-seaborn
+
 
