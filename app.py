@@ -8,9 +8,6 @@ import matplotlib.style as mstyle
 import seaborn as sns # <-- sns.set_styleを使用するため必須
 import io # <-- モックデータ作成用
 
-from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
-import japanize_matplotlib
-
 # Google Sheets関連のimportは、今回は使用しないためそのまま残しますが、
 # Streamlit Secretsで認証情報を管理する際に使用してください。
 import gspread
@@ -18,10 +15,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2 import service_account
 import json
 import os
+import japanize_matplotlib # 日本語表示のため
 
 # =======================================================
-# 【修正箇所1】seaborn-deepエラー完全対策（単一化）
-# pypfoptが内部で存在しないスタイルを呼び出してもクラッシュしないようにする
+# seaborn-deepエラー完全対策（起動時の競合を避ける）
 # =======================================================
 plt.style.use("default")
 mpl.rcParams.update(mpl.rcParamsDefault)
@@ -30,27 +27,22 @@ _original_style_use = plt.style.use # 組み込みの plt.style.use を一度だ
 def safe_style_use(style_name):
     # 'seaborn-deep'はStreamlit Cloudでしばしば問題を起こすためスキップ
     if style_name == "seaborn-deep":
-        # print("⚠ seaborn-deep style skipped.") # Streamlit環境ではprintは推奨されません
         return
     return _original_style_use(style_name)
 
+# Matplotlibのスタイル設定関数をパッチする
 plt.style.use = safe_style_use
 mpl.style.use = safe_style_use
 
-# Streamlit Cloudの環境依存でstyleが読み込めない場合に備え、
-# `mstyle.available` を上書きしてpypfoptの内部チェックを回避
-# (pypfoptが内部でMatplotlibスタイルを探しに行っても失敗しないようにするため)
+# pypfoptが内部で存在しないスタイルを呼び出してもクラッシュしないように、利用可能なスタイルを上書き
 mstyle.available = ["default", "classic", "whitegrid"] 
 
 # seabornの設定
 try:
     sns.set_style("whitegrid")
-except Exception as e:
-    st.warning(f"Seaborn style setting failed: {e}")
-
-# pypfoptとmatplotlibの連携を修正
-import pypfopt.plotting as pplot
-pplot.plt = plt
+except Exception:
+    # seabornがない環境でも動くようにエラーを無視
+    pass
 
 
 # 🔤 日本語フォント設定
@@ -58,16 +50,14 @@ mpl.rcParams['font.family'] = ['MS Gothic', 'Yu Gothic', 'Meiryo', 'IPAexGothic'
 mpl.rcParams['axes.unicode_minus'] = False  # マイナス符号の文字化け防止
 
 # ==============================
-# 【修正箇所2】データファイルがない場合のモックデータ作成関数
-# 実行環境にファイルがない場合に備え、一時的なモックデータを作成します
+# データファイルがない場合のモックデータ作成関数
 # ==============================
 
 @st.cache_data
 def load_mock_data():
     """モックデータを生成し、DataFrameとして返却する"""
     
-    # 1. スコア付きESGデータ - コピー.xlsx のモック
-    # 実際には、環境、社会、ガバナンスに関連するスコア（0-100）を含むダミーデータ
+    # 1. スコア付きESGデータ のモック
     csr_data = {
         "社名": ["企業A", "企業B", "企業C", "企業D", "企業E"],
         "CO₂スコア": [80, 50, 90, 70, 60],
@@ -78,14 +68,10 @@ def load_mock_data():
         "女性比率スコア": [70, 80, 90, 60, 50],
         "取締役評価スコア": [80, 70, 60, 90, 50],
         "内部通報スコア": [75, 65, 85, 70, 90],
-        # 自然資源スコアはコードで.get()が使われていたため、ここでは省略可能
-        # 必要であればここに追加: "自然資源スコア": [70, 60, 80, 50, 90],
-        "ダミー株価コード": [1, 2, 3, 4, 5]
     }
     df_csr = pd.DataFrame(csr_data)
     
     # 2. CSR企業_株価データ（週次）.csv のモック
-    # 効率的フロンティア計算に必要な、企業A, B, C, D, Eの株価時系列データ
     np.random.seed(42)
     dates = pd.date_range(start='2020-01-01', periods=100, freq='W')
     price_data = {}
@@ -105,11 +91,11 @@ df_csr, df_price = load_mock_data()
 
 
 # ==============================
-# 共通関数
-# (変更なし)
+# 共通関数 (AHPスケールと計算)
 # ==============================
 
 def get_dynamic_scale_labels(left: str, right: str):
+    """AHPの7段階スケールラベルを生成"""
     return [
         f"{left}が非常に重要",
         f"{left}がかなり重要",
@@ -121,12 +107,13 @@ def get_dynamic_scale_labels(left: str, right: str):
     ]
 
 def get_dynamic_label_to_value(left: str, right: str):
-    # 7段階AHPスケール
+    """AHPのラベルと対応する数値（逆数含む）をマッピング"""
     values = [7, 5, 3, 1, 1/3, 1/5, 1/7]
     labels = get_dynamic_scale_labels(left, right)
     return dict(zip(labels, values))
 
 def ahp_calculation(pairwise_matrix):
+    """AHPの重みと整合性比率（CR）を計算"""
     n = pairwise_matrix.shape[0]
     geo_means = np.prod(pairwise_matrix, axis=1) ** (1/n)
     priorities = geo_means / np.sum(geo_means)
@@ -136,7 +123,6 @@ def ahp_calculation(pairwise_matrix):
     RI_dict = {1: 0.00, 2: 0.00, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45}
     
     if n not in RI_dict or RI_dict[n] == 0:
-        # nが1または2の場合、または定義されていない場合
         CR = 0.0
     else:
         CR = CI / RI_dict[n]
@@ -257,6 +243,19 @@ with tabs[2]:
 # --- ④ 投資提案 ---
 with tabs[3]:
     st.header("投資先提案")
+
+    # 【pypfoptの遅延インポート】
+    # Streamlit Cloudでのseaborn-deep/pypfopt競合エラーを避けるため、
+    # styleパッチが完全に適用された後にインポートする
+    try:
+        from pypfopt import expected_returns, risk_models, EfficientFrontier, plotting
+        import pypfopt.plotting as pplot
+        pplot.plt = plt
+    except Exception as e:
+        st.error(f"ポートフォリオ最適化ライブラリのロード中にエラーが発生しました。Streamlit環境の問題です: {e}")
+        st.warning("このセクションをスキップします。")
+        st.stop()
+
 
     # データはload_mock_dataで取得
     df = df_csr 
