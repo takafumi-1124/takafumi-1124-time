@@ -121,7 +121,7 @@ with tabs[0]:
 #     st.dataframe(pd.DataFrame(trait_scores.items(), columns=["性格特性", "スコア"]))
 
 # --- ③ AHP ---
-with tabs[2]:
+with tabs[1]:
     st.header("ESG優先度測定")
     st.markdown("""
     以下では2つの項目を比較し、どちらをどの程度重視するかを選んでください。  
@@ -222,7 +222,7 @@ with tabs[2]:
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
 # --- ④ 投資提案 ---
-with tabs[3]:
+with tabs[2]:
     st.header("投資先提案")
 
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -324,4 +324,5 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
