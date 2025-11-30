@@ -13,6 +13,10 @@ except OSError:
 mpl.rcParams.update(mpl.rcParamsDefault)
 mpl.rcParams["axes.unicode_minus"] = False
 
+# === 日本語フォントを明示的に設定（Linux環境用） ===
+mpl.rcParams['font.family'] = ['IPAexGothic', 'IPAPGothic', 'TakaoPGothic', 'Noto Sans CJK JP']
+
+
 # === 通常のimport ===
 import streamlit as st
 import pandas as pd
