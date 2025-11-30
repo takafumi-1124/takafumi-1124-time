@@ -60,7 +60,7 @@ def ahp_calculation(pairwise_matrix):
 st.set_page_config(page_title="ESG投資意思決定", layout="centered")
 st.title("🌱 ESG投資意思決定サイト")
 
-tabs = st.tabs(["① ユーザー情報", "② Big Five 診断", "③ ESG優先度測定", "④ 投資提案"])
+tabs = st.tabs(["① ユーザー情報", "② ESG優先度測定", "③ 投資提案"])
 all_priorities = {}
 
 # --- ① ユーザー情報 ---
@@ -324,3 +324,4 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
