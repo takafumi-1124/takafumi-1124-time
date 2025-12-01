@@ -254,43 +254,43 @@ with tabs[3]:
     dummy_csr["スコア"] = dummy_csr[all_labels].dot(weights)
     result = dummy_csr.sort_values("スコア", ascending=False).head(3)
 
-    # =============================================
-    # 🟩 各カテゴリごとの平均スコアを算出して表示（寄与ではなくスコア）
-    # =============================================
-    # カテゴリごとの重み（上位階層）※必要なら保持しておく
+    # --- 合計スコアをAHPの重みで算出 ---
+    dummy_csr["スコア"] = dummy_csr[all_labels].dot(weights)
+
+    # --- 各カテゴリ別スコア（寄与度）を算出 ---
     weights_env = priorities_main[0]
     weights_soc = priorities_main[1]
     weights_gov = priorities_main[2]
-    
-    # 各カテゴリのスコア（企業データの平均値）
+
+    # 各カテゴリの平均スコア
     dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1)
     dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1)
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
-    
-    # 🔹 AHP重みに基づく合計スコア（3カテゴリの加重平均）
+
+    # --- 各カテゴリ寄与度を算出 ---
+    dummy_csr["環境寄与"] = dummy_csr["環境スコア"] * weights_env
+    dummy_csr["社会寄与"] = dummy_csr["社会スコア"] * weights_soc
+    dummy_csr["ガバナンス寄与"] = dummy_csr["ガバナンススコア"] * weights_gov
+
+    # --- 合計スコア（再計算） ---
     dummy_csr["合計スコア"] = (
-        dummy_csr["環境スコア"] * weights_env +
-        dummy_csr["社会スコア"] * weights_soc +
-        dummy_csr["ガバナンススコア"] * weights_gov
+        dummy_csr["環境寄与"] + dummy_csr["社会寄与"] + dummy_csr["ガバナンス寄与"]
     )
-    
-    # 🔹 上位3社を表示
+
+    # --- 上位3社を表示 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
-    
-    st.subheader("ESGカテゴリ別スコア（企業の強みを可視化）")
-    st.caption("""
-    AHPで算出したあなたのESG重視度をもとに、  
-    各企業の『環境・社会・ガバナンス』スコアを加重平均して総合評価しています。
-    """)
-    
+
+    # --- 数値型に変換してからフォーマット ---
+    for col in ["環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]:
+        result[col] = pd.to_numeric(result[col], errors="coerce")
+
+    st.subheader("上位3社（AHPによるスコア内訳）")
+    st.caption("各項目は、あなたのESG重視度を反映した寄与スコア（点）です。合計スコアはそれらの加重平均です。")
+
+    # ✅ ここを修正
     st.dataframe(
-        result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-            .style.format({
-                "環境スコア": "{:.2f}",
-                "社会スコア": "{:.2f}",
-                "ガバナンススコア": "{:.2f}",
-                "合計スコア": "{:.2f}"
-            })
+        result[["企業名", "環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]]
+            .style.format({"環境寄与": "{:.2f}", "社会寄与": "{:.2f}", "ガバナンス寄与": "{:.2f}", "合計スコア": "{:.2f}"})
     )
 
 
@@ -368,4 +368,5 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
