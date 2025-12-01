@@ -268,13 +268,13 @@ with tabs[3]:
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
 
     # --- 各カテゴリ寄与度を算出 ---
-    dummy_csr["環境スコア"] = dummy_csr["環境スコア"] * weights_env
-    dummy_csr["社会スコア"] = dummy_csr["社会スコア"] * weights_soc
-    dummy_csr["ガバナンススコア"] = dummy_csr["ガバナンススコア"] * weights_gov
+    dummy_csr["環境寄与"] = dummy_csr["環境スコア"] * weights_env
+    dummy_csr["社会寄与"] = dummy_csr["社会スコア"] * weights_soc
+    dummy_csr["ガバナンス寄与"] = dummy_csr["ガバナンススコア"] * weights_gov
 
     # --- 合計スコア（再計算） ---
     dummy_csr["合計スコア"] = (
-        dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
+        dummy_csr["環境寄与"] + dummy_csr["社会寄与"] + dummy_csr["ガバナンス寄与"]
     )
 
     # --- 上位3社を表示 ---
@@ -290,7 +290,7 @@ with tabs[3]:
     # ✅ ここを修正
     st.dataframe(
         result[["企業名", "環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]]
-            .style.format({"環境寄与": "{:.2f}", "社会寄与": "{:.2f}", "ガバナンス寄与": "{:.2f}", "合計スコア": "{:.2f}"})
+            .style.format({"環境スコア": "{:.2f}", "社会スコア": "{:.2f}", "ガバナンススコア": "{:.2f}", "合計スコア": "{:.2f}"})
     )
 
 
@@ -363,6 +363,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
