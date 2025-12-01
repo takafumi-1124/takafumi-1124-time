@@ -261,22 +261,28 @@ with tabs[3]:
     weights_env = priorities_main[0]
     weights_soc = priorities_main[1]
     weights_gov = priorities_main[2]
-
-    # 各カテゴリの平均スコア（AHP重み付けなしの純粋な企業ESGスコア）
+    
+    # 各カテゴリのスコア（企業データの平均値）
     dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1)
     dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1)
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
-
-    # 合計スコアは AHP重みを反映した結果として残す
-    dummy_csr["合計スコア"] = dummy_csr[all_labels].dot(weights)
-
-    # スコアが高い順に並べる
+    
+    # 🔹 AHP重みに基づく合計スコア（3カテゴリの加重平均）
+    dummy_csr["合計スコア"] = (
+        dummy_csr["環境スコア"] * weights_env +
+        dummy_csr["社会スコア"] * weights_soc +
+        dummy_csr["ガバナンススコア"] * weights_gov
+    )
+    
+    # 🔹 上位3社を表示
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
-
+    
     st.subheader("ESGカテゴリ別スコア（企業の強みを可視化）")
-    st.caption("各企業の『環境・社会・ガバナンス』それぞれの平均スコアを表示します。")
-
-    # DataFrame表示
+    st.caption("""
+    AHPで算出したあなたのESG重視度をもとに、  
+    各企業の『環境・社会・ガバナンス』スコアを加重平均して総合評価しています。
+    """)
+    
     st.dataframe(
         result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
             .style.format({
@@ -362,3 +368,4 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
