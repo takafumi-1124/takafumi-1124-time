@@ -268,13 +268,13 @@ with tabs[3]:
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
 
     # --- 各カテゴリ寄与度を算出 ---
-    dummy_csr["環境寄与"] = dummy_csr["環境スコア"] * weights_env
-    dummy_csr["社会寄与"] = dummy_csr["社会スコア"] * weights_soc
-    dummy_csr["ガバナンス寄与"] = dummy_csr["ガバナンススコア"] * weights_gov
+    dummy_csr["環境スコア"] = dummy_csr["環境スコア"] * weights_env
+    dummy_csr["社会スコア"] = dummy_csr["社会スコア"] * weights_soc
+    dummy_csr["ガバナンススコア"] = dummy_csr["ガバナンススコア"] * weights_gov
 
     # --- 合計スコア（再計算） ---
     dummy_csr["合計スコア"] = (
-        dummy_csr["環境寄与"] + dummy_csr["社会寄与"] + dummy_csr["ガバナンス寄与"]
+        dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     )
 
     # --- 上位3社を表示 ---
@@ -293,11 +293,6 @@ with tabs[3]:
             .style.format({"環境寄与": "{:.2f}", "社会寄与": "{:.2f}", "ガバナンス寄与": "{:.2f}", "合計スコア": "{:.2f}"})
     )
 
-
-    st.subheader("上位3社（AHPによるスコア内訳）")
-    st.caption("各項目は、あなたのESG重視度を反映した寄与スコア（点）です。")
-
-    st.dataframe(result[["企業名", "スコア"]].style.format({"スコア": "{:.2f}"}))
 
     # --- 株価データとフロンティア ---
     df_price = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv", index_col=0, parse_dates=True)
@@ -368,5 +363,6 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
