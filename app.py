@@ -64,7 +64,7 @@ def ahp_calculation(pairwise_matrix):
 st.set_page_config(page_title="ESG投資意思決定", layout="centered")
 st.title("🌱 ESG投資意思決定サイト")
 
-tabs = st.tabs(["① ユーザー情報", "② ESG優先度測定", "③ 投資提案"])
+tabs = st.tabs(["① ユーザー情報", "② ESGについて","③ ESG優先度測定", "④ 投資提案"])
 all_priorities = {}
 
 # --- ① ユーザー情報 ---
@@ -75,30 +75,30 @@ with tabs[0]:
     job = st.text_input("あなたの職業を入力してください", placeholder="例：大学生")
 
 # # --- ② Big Five ---
-# with tabs[1]:
-#     # --- ESG投資とは？説明セクション ---
-#     st.header("📘 ESG投資とは？")
-#     st.markdown("""
-#     ### ESG投資とは？
-#     ESG投資とは、企業を「環境（E）・社会（S）・ガバナンス（G）」の3つの視点から評価し、
-#     長期的に安定した成長が期待できる企業を選ぶ投資方法です。
+with tabs[1]:
+    # --- ESG投資とは？説明セクション ---
+    st.header("📘 ESG投資とは？")
+    st.markdown("""
+    ### ESG投資とは？
+    ESG投資とは、企業を「環境（E）・社会（S）・ガバナンス（G）」の3つの視点から評価し、
+    長期的に安定した成長が期待できる企業を選ぶ投資方法です。
 
-#     - **環境（E）**：CO₂削減、再エネ、廃棄物管理  
-#     - **社会（S）**：働きやすさ、人権、多様性  
-#     - **ガバナンス（G）**：不祥事防止、経営の健全性
-#     """)
+    - **環境（E）**：CO₂削減、再エネ、廃棄物管理  
+    - **社会（S）**：働きやすさ、人権、多様性  
+    - **ガバナンス（G）**：不祥事防止、経営の健全性
+    """)
 
-#     st.markdown("""
-#     ### ESGは“社会貢献のための投資”ではありません
-#     ESGは「企業のリスク管理能力」や「持続可能性」を測る指標です。  
-#     不祥事・規制違反・離職率の高さなどを避け、安定した企業を選ぶための基準となります。
-#     """)
+    st.markdown("""
+    ### ESGは“社会貢献のための投資”ではありません
+    ESGは「企業のリスク管理能力」や「持続可能性」を測る指標です。  
+    不祥事・規制違反・離職率の高さなどを避け、安定した企業を選ぶための基準となります。
+    """)
 
-#     st.markdown("""
-#     ### このアプリで行うこと
-#     あなたのESGに対する価値観をAHP法を使って数値化し、  
-#     その結果をもとに最適な投資ポートフォリオを提案します。
-#     """)
+    st.markdown("""
+    ### このアプリで行うこと
+    あなたのESGに対する価値観をAHP法を使って数値化し、  
+    その結果をもとに最適な投資ポートフォリオを提案します。
+    """)
 
 #     # --- Big Five 診断 ---
 #     st.header("Big Five 診断")
@@ -125,7 +125,7 @@ with tabs[0]:
 #     st.dataframe(pd.DataFrame(trait_scores.items(), columns=["性格特性", "スコア"]))
 
 # --- ③ AHP ---
-with tabs[1]:
+with tabs[2]:
     st.header("ESG優先度測定")
     st.markdown("""
     以下では2つの項目を比較し、どちらをどの程度重視するかを選んでください。  
@@ -226,7 +226,7 @@ with tabs[1]:
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
 # --- ④ 投資提案 ---
-with tabs[2]:
+with tabs[3]:
     st.header("投資先提案")
 
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -253,6 +253,40 @@ with tabs[2]:
 
     dummy_csr["スコア"] = dummy_csr[all_labels].dot(weights)
     result = dummy_csr.sort_values("スコア", ascending=False).head(3)
+
+    # =============================================
+    # 🟩 各カテゴリごとの平均スコアを算出して表示（寄与ではなくスコア）
+    # =============================================
+    # カテゴリごとの重み（上位階層）※必要なら保持しておく
+    weights_env = priorities_main[0]
+    weights_soc = priorities_main[1]
+    weights_gov = priorities_main[2]
+
+    # 各カテゴリの平均スコア（AHP重み付けなしの純粋な企業ESGスコア）
+    dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1)
+    dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1)
+    dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
+
+    # 合計スコアは AHP重みを反映した結果として残す
+    dummy_csr["合計スコア"] = dummy_csr[all_labels].dot(weights)
+
+    # スコアが高い順に並べる
+    result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
+
+    st.subheader("ESGカテゴリ別スコア（企業の強みを可視化）")
+    st.caption("各企業の『環境・社会・ガバナンス』それぞれの平均スコアを表示します。")
+
+    # DataFrame表示
+    st.dataframe(
+        result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
+            .style.format({
+                "環境スコア": "{:.2f}",
+                "社会スコア": "{:.2f}",
+                "ガバナンススコア": "{:.2f}",
+                "合計スコア": "{:.2f}"
+            })
+    )
+
 
     st.subheader("上位3社（AHPによるスコア内訳）")
     st.caption("各項目は、あなたのESG重視度を反映した寄与スコア（点）です。")
@@ -328,6 +362,3 @@ with tabs[2]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
-
-
-
