@@ -321,7 +321,7 @@ with tabs[3]:
         result[col] = pd.to_numeric(result[col], errors="coerce")
 
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    st.caption("各項目は、あなたのESG優先度を反映したスコアです。")
+    st.caption("各項目は、あなたのESG優先度の結果を反映したスコアです。")
 
     # ✅ ここを修正
     st.dataframe(
@@ -345,7 +345,7 @@ with tabs[3]:
 
     st.markdown("**最適ポートフォリオ（シャープレシオ最大）**")
     st.caption("""
-    ※ AHPの結果から上位企業をピックアップし、株価データを用いて効率的フロンティアを作成しています。  
+    ※ ESG優先度測定の結果から上位企業をピックアップし、株価データを用いて効率的フロンティアを作成しています。  
     リスクとリターンを最適化した結果、一部の企業は比率0（＝採用されない）になることがあります。
     """)
 
@@ -399,6 +399,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
