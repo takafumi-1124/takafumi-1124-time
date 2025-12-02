@@ -252,7 +252,7 @@ with tabs[2]:
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
         st.divider()
-        st.subheader("AHP結果のまとめ")
+        st.subheader("ESG優先度の結果まとめ")
         top_category = labels_main[np.argmax(priorities_main)]
         if top_category in all_priorities:
             top_sub = max(all_priorities[top_category].items(), key=lambda x: x[1])[0]
@@ -399,6 +399,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
