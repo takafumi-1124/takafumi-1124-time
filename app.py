@@ -349,7 +349,7 @@ with tabs[3]:
     リスクとリターンを最適化した結果、一部の企業は比率0（＝採用されない）になることがあります。
     """)
 
-    portfolio_df = pd.DataFrame([{"企業名": k, "投資比率（%）": round(v * 100, 2)} for k, v in cleaned_weights.items() if v > 0])
+    portfolio_df = pd.DataFrame([{"企業名": k, "投資配分（%）": round(v * 100, 2)} for k, v in cleaned_weights.items() if v > 0])
     st.dataframe(portfolio_df)
 
     fig, ax = plt.subplots(figsize=(7, 5))
@@ -399,6 +399,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
