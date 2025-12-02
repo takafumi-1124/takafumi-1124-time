@@ -248,10 +248,6 @@ with tabs[2]:
                 matrix[j][i] = 1 / mapping[selected]
 
         priorities, cr = ahp_calculation(matrix)
-        st.dataframe(pd.DataFrame({"項目": group_items, "優先度（%）": (priorities * 100).round(1)}))
-        all_priorities[group_name] = dict(zip(group_items, priorities))
-
-        priorities, cr = ahp_calculation(matrix)
         # === 表・整合性結果をカテゴリごとに表示 ===
         st.dataframe(pd.DataFrame({
             "項目": group_items,
@@ -419,6 +415,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
