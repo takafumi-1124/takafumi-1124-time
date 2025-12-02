@@ -251,6 +251,21 @@ with tabs[2]:
         st.dataframe(pd.DataFrame({"項目": group_items, "優先度（%）": (priorities * 100).round(1)}))
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
+    priorities, cr = ahp_calculation(matrix)
+    st.dataframe(pd.DataFrame({"項目": group_items, "優先度（%）": (priorities * 100).round(1)}))
+    st.write(f"整合性比率 (CR): {cr:.3f}")
+    
+    # ✅ 追加：各カテゴリでも整合性メッセージを表示
+    if cr > 0.15:
+        st.error("⚠ 判断に矛盾がある可能性があります（CR > 0.15）")
+    elif cr > 0.10:
+        st.warning("⚠ やや不安定です（0.10 < CR ≤ 0.15）")
+    else:
+        st.success("✅ 一貫した判断です（CR ≤ 0.10）")
+    
+    all_priorities[group_name] = dict(zip(group_items, priorities))
+
+
     st.divider()
     st.subheader("ESG優先度の結果まとめ")
     top_category = labels_main[np.argmax(priorities_main)]
@@ -400,6 +415,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
