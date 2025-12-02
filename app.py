@@ -320,8 +320,8 @@ with tabs[3]:
     for col in ["環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]:
         result[col] = pd.to_numeric(result[col], errors="coerce")
 
-    st.subheader("上位3社（AHPによるスコア内訳）")
-    st.caption("各項目は、あなたのESG重視度を反映した寄与スコア（点）です。合計スコアはそれらの加重平均です。")
+    st.subheader("上位3社（ESG優先度測定によるスコア結果）")
+    st.caption("各項目は、あなたのESG優先度を反映したスコアです。")
 
     # ✅ ここを修正
     st.dataframe(
@@ -399,6 +399,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
