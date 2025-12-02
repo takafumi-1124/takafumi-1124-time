@@ -251,15 +251,16 @@ with tabs[2]:
         st.dataframe(pd.DataFrame({"項目": group_items, "優先度（%）": (priorities * 100).round(1)}))
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
-        st.divider()
-        st.subheader("ESG優先度の結果まとめ")
-        top_category = labels_main[np.argmax(priorities_main)]
-        if top_category in all_priorities:
-            top_sub = max(all_priorities[top_category].items(), key=lambda x: x[1])[0]
-            st.markdown(f"""
-            あなたが最も重視しているのは **「{top_category}」** です。  
-            その中でも特に **「{top_sub}」** を重視している傾向が見られます。
-            """)
+    st.divider()
+    st.subheader("ESG優先度の結果まとめ")
+    top_category = labels_main[np.argmax(priorities_main)]
+    if top_category in all_priorities:
+        top_sub = max(all_priorities[top_category].items(), key=lambda x: x[1])[0]
+        st.markdown(f"""
+        あなたが最も重視しているのは **「{top_category}」** です。  
+        その中でも特に **「{top_sub}」** を重視している傾向が見られます。
+        """)
+
 
 # --- ④ 投資提案 ---
 with tabs[3]:
@@ -399,6 +400,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
