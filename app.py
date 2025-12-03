@@ -353,35 +353,56 @@ with tabs[3]:
 
 
     # --- 株価データとフロンティア ---
+    # --- 株価データ読み込み ---
     df_price = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv", index_col=0, parse_dates=True)
+
+    # --- 上位企業の抽出 ---
     selected_companies = result["企業名"].tolist()
     df_price = df_price[selected_companies].dropna()
 
+    # --- リターンと分散共分散行列の計算 ---
     mu = expected_returns.mean_historical_return(df_price, frequency=52)
     S = risk_models.sample_cov(df_price, frequency=52)
 
+    # --- 効率的フロンティア計算 ---
     st.subheader("効率的フロンティア")
+
     ef_sharpe = EfficientFrontier(mu, S)
     ef_sharpe.max_sharpe()
     cleaned_weights = ef_sharpe.clean_weights()
 
+    # --- 投資比率をDataFrameに整形 ---
+    portfolio_df = (
+        pd.DataFrame.from_dict(cleaned_weights, orient="index", columns=["投資配分（%）"])
+        .reset_index()
+        .rename(columns={"index": "企業名"})
+    )
+    portfolio_df["投資配分（%）"] = (portfolio_df["投資配分（%）"] * 100).round(2)
+    portfolio_df = portfolio_df[portfolio_df["投資配分（%）"] > 0]  # 比率0は除外
+
+    # --- 表示 ---
     st.markdown("**最適ポートフォリオ（シャープレシオ最大）**")
     st.caption("""
     ※ ESG優先度測定の結果から上位企業をピックアップし、株価データを用いて効率的フロンティアを作成しています。  
     リスクとリターンを最適化した結果、一部の企業は比率0（＝採用されない）になることがあります。
     """)
 
-    st.data_editor(
-        portfolio_df.style.format({"投資配分（%）": "{:.2f}"}),
+    st.dataframe(
+        portfolio_df.style.format({"投資配分（%）": "{:.2f}"})
+        .set_properties(subset=["企業名"], **{"font-weight": "bold", "text-align": "left", "width": "200px"})
+        .set_table_styles([
+            {"selector": "thead th", "props": [("font-size", "14px"), ("text-align", "center")]},
+            {"selector": "td", "props": [("font-size", "13px")]}
+        ]),
         use_container_width=True,
-        hide_index=True,
-        disabled=True  # ← 編集不可（閲覧専用にする）
+        hide_index=True
     )
 
+    # --- 効率的フロンティア図の描画 ---
     fig, ax = plt.subplots(figsize=(7, 5))
     plotting.plot_efficient_frontier(EfficientFrontier(mu, S), ax=ax, show_assets=False)
 
-    # ランダムポートフォリオ追加
+    # --- ランダムポートフォリオ追加 ---
     num_portfolios = 5000
     results = np.zeros((3, num_portfolios))
     for i in range(num_portfolios):
@@ -392,6 +413,8 @@ with tabs[3]:
         results[0, i], results[1, i] = portfolio_return, portfolio_stddev
 
     ax.scatter(results[1, :], results[0, :], c="lightblue", alpha=0.3, s=10)
+
+    # --- 資本市場線を追加 ---
     risk_free_rate = 0.02
     ef_tangent = EfficientFrontier(mu, S)
     ef_tangent.max_sharpe(risk_free_rate=risk_free_rate)
@@ -403,6 +426,7 @@ with tabs[3]:
     ax.scatter(0, risk_free_rate, c="g", s=100, label="無リスク資産（点A）")
     ax.scatter(std_tangent, ret_tangent, c="r", s=200, marker="*", label="最大シャープレシオ点（点B）")
 
+    # --- 凡例など整形 ---
     ax.legend(
         [
             "効率的フロンティア（最適ポートフォリオの集合）",
