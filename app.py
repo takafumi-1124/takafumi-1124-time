@@ -1,8 +1,3 @@
-# ==============================================
-# 🌱 ESG投資意思決定アプリ（Streamlit Cloud最終完全版）
-# ==============================================
-
-# === seaborn-deepエラー完全回避（Streamlit Cloud安定版） ===
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 try:
@@ -187,7 +182,13 @@ with tabs[2]:
                 matrix_main[j][i] = 1 / mapping[selected]
 
     priorities_main, cr_main = ahp_calculation(matrix_main)
-    st.dataframe(pd.DataFrame({"項目": labels_main, "優先度（%）": (priorities_main * 100).round(1)}))
+    st.dataframe(
+    pd.DataFrame({
+        "項目": group_items,
+        "優先度（%）": (priorities * 100).round(1)
+    }),
+    use_container_width=True
+)
     st.write(f"整合性比率 (CR): {cr_main:.3f}")
 
     if cr_main > 0.15:
@@ -249,10 +250,14 @@ with tabs[2]:
 
         priorities, cr = ahp_calculation(matrix)
         # === 表・整合性結果をカテゴリごとに表示 ===
-        st.dataframe(pd.DataFrame({
-            "項目": group_items,
-            "優先度（%）": (priorities * 100).round(1)
-        }))
+        st.dataframe(
+            pd.DataFrame({
+                "項目": group_items,
+                "優先度（%）": (priorities * 100).round(1)
+            }),
+            use_container_width=True
+        )
+
         st.write(f"整合性比率 (CR): {cr:.3f}")
     
         # ✅ 各カテゴリごとにCR判定を表示（ここがfor内）
@@ -415,22 +420,3 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
