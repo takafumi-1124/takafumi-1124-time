@@ -320,49 +320,46 @@ with tabs[3]:
         "取締役会構成・少数株主保護": df["取締役評価スコア"],
         "統治とリスク管理": df["内部通報スコア"]
     }).fillna(0)
-    # --- 合計スコアをAHPの重みで算出 ---
-    dummy_csr["スコア"] = dummy_csr[all_labels].dot(weights)
-
-    # --- 各カテゴリ別スコア（寄与度）を算出 ---
+   # --- 各カテゴリのAHP重みを取得 ---
     weights_env = priorities_main[0]
     weights_soc = priorities_main[1]
     weights_gov = priorities_main[2]
 
-    # 各カテゴリの平均スコア
+    # --- 各カテゴリの平均スコア（企業ごとの生データ） ---
     dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1)
     dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1)
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
 
-    # --- 各カテゴリ寄与度を算出 ---
-    dummy_csr["環境寄与"] = dummy_csr["環境スコア"] * weights_env
-    dummy_csr["社会寄与"] = dummy_csr["社会スコア"] * weights_soc
-    dummy_csr["ガバナンス寄与"] = dummy_csr["ガバナンススコア"] * weights_gov
+    # --- 各カテゴリにAHPの重みを掛ける（寄与スコア化） ---
+    dummy_csr["環境スコア"] = dummy_csr["環境スコア"] * weights_env
+    dummy_csr["社会スコア"] = dummy_csr["社会スコア"] * weights_soc
+    dummy_csr["ガバナンススコア"] = dummy_csr["ガバナンススコア"] * weights_gov
 
-    # --- 合計スコア（再計算） ---
+    # --- 合計スコア = 3カテゴリの単純合計（正規化なし） ---
     dummy_csr["合計スコア"] = (
-        dummy_csr["環境寄与"] + dummy_csr["社会寄与"] + dummy_csr["ガバナンス寄与"]
+        dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     )
 
-    # ✅ ★ ここで result を作成（新しい列が追加された後に）
+    # --- 上位3社を抽出 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
-    # --- 上位3社を表示 ---
+    # --- 表示部分 ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    st.caption("各項目は、あなたのESG優先度の結果を反映したスコアです。")
+    st.caption("各カテゴリはAHPの重みを反映した寄与スコア（点）です。合計スコアはそれらの合計値です（正規化なし）。")
 
-    # ✅ 見やすく整形して表示
     st.dataframe(
         result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-        .style.format({
-            "環境スコア": "{:.2f}",
-            "社会スコア": "{:.2f}",
-            "ガバナンススコア": "{:.2f}",
-            "合計スコア": "{:.2f}"
-        })
-        .set_properties(subset=["企業名"], **{"font-weight": "bold", "text-align": "left"}),
+            .style.format({
+                "環境スコア": "{:.2f}",
+                "社会スコア": "{:.2f}",
+                "ガバナンススコア": "{:.2f}",
+                "合計スコア": "{:.2f}"
+            })
+            .set_properties(subset=["企業名"], **{"font-weight": "bold", "text-align": "left"}),
         use_container_width=True,
         hide_index=True
     )
+
 
 
 
