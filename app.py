@@ -59,6 +59,19 @@ def ahp_calculation(pairwise_matrix):
 st.set_page_config(page_title="ESG投資意思決定", layout="centered")
 st.title("🌱 ESG投資意思決定サイト")
 
+# --- スライダーの間隔をCSSで調整 ---
+st.markdown(
+    """
+    <style>
+    .stSlider {
+        margin-top: 15px;
+        margin-bottom: 30px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 tabs = st.tabs(["① ユーザー情報", "② ESGについて","③ ESG優先度測定", "④ 投資提案"])
 all_priorities = {}
 
@@ -451,4 +464,3 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
-
