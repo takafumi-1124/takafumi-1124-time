@@ -199,78 +199,78 @@ with tabs[2]:
         st.success("✅ 一貫した判断です（CR ≤ 0.10）")
 
     # --- 各カテゴリ ---
-   for group_name, group_items in {
-    "環境": ['気候変動', '資源循環・循環経済', '生物多様性', '自然資源'],
-    "社会": ['人権・インクルージョン', '雇用・労働慣行', '多様性・公平性'],
-    "ガバナンス": ['取締役会構成・少数株主保護', '統治とリスク管理']
-}.items():
-    st.subheader(f"{group_name}の優先度測定")
+    for group_name, group_items in {
+        "環境": ['気候変動', '資源循環・循環経済', '生物多様性', '自然資源'],
+        "社会": ['人権・インクルージョン', '雇用・労働慣行', '多様性・公平性'],
+        "ガバナンス": ['取締役会構成・少数株主保護', '統治とリスク管理']
+    }.items():
+        st.subheader(f"{group_name}の優先度測定")
 
-    # --- 補助説明（クリックで展開） ---
-    with st.expander("📝 補助説明（クリックで展開）"):
-        if group_name == "環境":
-            st.markdown("""
-            **項目の説明**
+        # --- 補助説明（クリックで展開） ---
+        with st.expander("📝 補助説明（クリックで展開）"):
+            if group_name == "環境":
+                st.markdown("""
+                **項目の説明**
 
-            **気候変動**：企業が事業活動の中で温室効果ガス（CO₂など）をどれだけ減らそうとしているか。  
-            **資源循環・循環経済**：廃棄物を減らし、リサイクルや再利用を進めているか。  
-            **生物多様性**：森林保全や絶滅危惧種保護など自然環境の維持に力を入れているか。  
-            **自然資源**：水や森林などを持続的に利用しているか。
-            """)
-        elif group_name == "社会":
-            st.markdown("""
-            **項目の説明**
+                **気候変動**：企業が事業活動の中で温室効果ガス（CO₂など）をどれだけ減らそうとしているか。  
+                **資源循環・循環経済**：廃棄物を減らし、リサイクルや再利用を進めているか。  
+                **生物多様性**：森林保全や絶滅危惧種保護など自然環境の維持に力を入れているか。  
+                **自然資源**：水や森林などを持続的に利用しているか。
+                """)
+            elif group_name == "社会":
+                st.markdown("""
+                **項目の説明**
 
-            **人権・インクルージョン**：人権侵害防止に取り組んでいるか。  
-            **雇用・労働慣行**：働きやすい環境や有給取得のしやすさ。  
-            **多様性・公平性**：性別・国籍を問わず平等な昇進機会があるか。
-            """)
-        elif group_name == "ガバナンス":
-            st.markdown("""
-            **項目の説明**
+                **人権・インクルージョン**：人権侵害防止に取り組んでいるか。  
+                **雇用・労働慣行**：働きやすい環境や有給取得のしやすさ。  
+                **多様性・公平性**：性別・国籍を問わず平等な昇進機会があるか。
+                """)
+            elif group_name == "ガバナンス":
+                st.markdown("""
+                **項目の説明**
 
-            **取締役会構成・少数株主保護**：社外取締役による経営チェック体制があるか。  
-            **統治とリスク管理**：法令遵守・内部統制が適切か。
-            """)
+                **取締役会構成・少数株主保護**：社外取締役による経営チェック体制があるか。  
+                **統治とリスク管理**：法令遵守・内部統制が適切か。
+                """)
 
-    # === ペア比較（AHP入力） ===
-    size = len(group_items)
-    matrix = np.ones((size, size))
-    for i in range(size):
-        for j in range(i + 1, size):
-            labels = get_dynamic_scale_labels(group_items[i], group_items[j])
-            mapping = get_dynamic_label_to_value(group_items[i], group_items[j])
-            selected = st.select_slider(
-                f"{group_items[i]} vs {group_items[j]}",
-                options=labels,
-                value="同じくらい重要"
-            )
-            matrix[i][j] = mapping[selected]
-            matrix[j][i] = 1 / mapping[selected]
+        # === ペア比較（AHP入力） ===
+        size = len(group_items)
+        matrix = np.ones((size, size))
+        for i in range(size):
+            for j in range(i + 1, size):
+                labels = get_dynamic_scale_labels(group_items[i], group_items[j])
+                mapping = get_dynamic_label_to_value(group_items[i], group_items[j])
+                selected = st.select_slider(
+                    f"{group_items[i]} vs {group_items[j]}",
+                    options=labels,
+                    value="同じくらい重要"
+                )
+                matrix[i][j] = mapping[selected]
+                matrix[j][i] = 1 / mapping[selected]
 
-    # === 計算 ===
-    priorities, cr = ahp_calculation(matrix)
+        # === 計算 ===
+        priorities, cr = ahp_calculation(matrix)
 
-    # === 表示 ===
-    st.dataframe(
-        pd.DataFrame({
-            "項目": group_items,
-            "優先度（%）": (priorities * 100).round(1)
-        }),
-        use_container_width=True
-    )
+        # === 表示 ===
+        st.dataframe(
+            pd.DataFrame({
+                "項目": group_items,
+                "優先度（%）": (priorities * 100).round(1)
+            }),
+            use_container_width=True
+        )
 
-    # === 整合性表示 ===
-    st.write(f"整合性比率 (CR): {cr:.3f}")
-    if cr > 0.15:
-        st.error("⚠ 判断に矛盾がある可能性があります（CR > 0.15）")
-    elif cr > 0.10:
-        st.warning("⚠ やや不安定です（0.10 < CR ≤ 0.15）")
-    else:
-        st.success("✅ 一貫した判断です（CR ≤ 0.10）")
+        # === 整合性表示 ===
+        st.write(f"整合性比率 (CR): {cr:.3f}")
+        if cr > 0.15:
+            st.error("⚠ 判断に矛盾がある可能性があります（CR > 0.15）")
+        elif cr > 0.10:
+            st.warning("⚠ やや不安定です（0.10 < CR ≤ 0.15）")
+        else:
+            st.success("✅ 一貫した判断です（CR ≤ 0.10）")
 
-    # === 保存 ===
-    all_priorities[group_name] = dict(zip(group_items, priorities))
+        # === 保存 ===
+        all_priorities[group_name] = dict(zip(group_items, priorities))
 
 
 
