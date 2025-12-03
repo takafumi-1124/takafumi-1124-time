@@ -371,8 +371,12 @@ with tabs[3]:
     リスクとリターンを最適化した結果、一部の企業は比率0（＝採用されない）になることがあります。
     """)
 
-    portfolio_df = pd.DataFrame([{"企業名": k, "投資配分（%）": round(v * 100, 2)} for k, v in cleaned_weights.items() if v > 0])
-    st.dataframe(portfolio_df)
+    st.data_editor(
+        portfolio_df.style.format({"投資配分（%）": "{:.2f}"}),
+        use_container_width=True,
+        hide_index=True,
+        disabled=True  # ← 編集不可（閲覧専用にする）
+    )
 
     fig, ax = plt.subplots(figsize=(7, 5))
     plotting.plot_efficient_frontier(EfficientFrontier(mu, S), ax=ax, show_assets=False)
