@@ -188,7 +188,8 @@ with tabs[2]:
             "項目": labels_main,
             "優先度（%）": (priorities_main * 100).round(1)
         }),
-        use_container_width=True
+        use_container_width=True,
+        hide_index=True
     )
 
     st.write(f"整合性比率 (CR): {cr_main:.3f}")
@@ -253,7 +254,7 @@ with tabs[2]:
                 "項目": group_items,
                 "優先度（%）": (priorities * 100).round(1)
             }),
-            use_container_width=True
+            use_container_width=True,
             hide_index=True
         )
 
@@ -450,3 +451,4 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
