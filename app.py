@@ -333,20 +333,23 @@ with tabs[3]:
     )
 
     # --- 上位3社を表示 ---
-    result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
-
-    # --- 数値型に変換してからフォーマット ---
-    for col in ["環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]:
-        result[col] = pd.to_numeric(result[col], errors="coerce")
-
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     st.caption("各項目は、あなたのESG優先度の結果を反映したスコアです。")
 
-    # ✅ ここを修正
+    # ✅ 企業名の列を見やすく、インデックスを非表示に
     st.dataframe(
         result[["企業名", "環境寄与", "社会寄与", "ガバナンス寄与", "合計スコア"]]
-            .style.format({"環境スコア": "{:.2f}", "社会スコア": "{:.2f}", "ガバナンススコア": "{:.2f}", "合計スコア": "{:.2f}"})
-    )
+        .style.format({
+            "環境寄与": "{:.2f}",
+            "社会寄与": "{:.2f}",
+            "ガバナンス寄与": "{:.2f}",
+            "合計スコア": "{:.2f}"
+        })
+        .set_properties(subset=["企業名"], **{"font-weight": "bold", "text-align": "left"}),
+        use_container_width=True,
+        hide_index=True  # 👈 インデックス（行番号）を非表示
+)
+
 
 
     # --- 株価データとフロンティア ---
