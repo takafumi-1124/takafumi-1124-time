@@ -189,6 +189,7 @@ with tabs[2]:
             "優先度（%）": (priorities_main * 100).round(1)
         }),
         use_container_width=True
+        hide_index=True
     )
 
     st.write(f"整合性比率 (CR): {cr_main:.3f}")
