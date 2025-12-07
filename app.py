@@ -335,7 +335,7 @@ with tabs[3]:
     dummy_csr["社会スコア"] = dummy_csr["社会スコア"] * weights_soc
     dummy_csr["ガバナンススコア"] = dummy_csr["ガバナンススコア"] * weights_gov
 
-    # --- 合計スコア = 3カテゴリの単純合計（正規化なし） ---
+    # --- 合計スコア = 3カテゴリの単純合計 ---
     dummy_csr["合計スコア"] = (
         dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     )
@@ -461,3 +461,4 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
