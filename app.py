@@ -322,16 +322,63 @@ with tabs[3]:
         "URL": df["URL"]
     }).fillna(0)
     
-    # --- AHP重み適用 ---
+    # # --- AHP重み適用 ---
+    # weights_env = priorities_main[0]
+    # weights_soc = priorities_main[1]
+    # weights_gov = priorities_main[2]
+    
+    # dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1) * weights_env
+    # dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1) * weights_soc
+    # dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1) * weights_gov
+    
+    # # --- 合計スコア（正規化なし） ---
+    # dummy_csr["合計スコア"] = (
+    #     dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
+    # )
+    
+    # # --- 上位3社を抽出 ---
+    # result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
+    
+    # # --- ✅ URLをクリック可能に ---
+    # result["企業リンク"] = result.apply(
+    #     lambda x: f"[{x['企業名']}]({x['URL']})" if pd.notna(x["URL"]) and x["URL"] != "" else x["企業名"],
+    #     axis=1
+    # )
+    
+    # # --- 表示 ---
+    # st.subheader("上位3社（ESG優先度測定によるスコア結果）")
+    # st.caption("企業名をクリックすると公式サイトを開けます。")
+    
+    # # ✅ 企業名をクリックで公式サイトを開く（HTMLリンク形式）
+    # result["企業名"] = result.apply(
+    #     lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
+    #     if pd.notna(x["URL"]) and x["URL"] != "" else x["企業名"],
+    #     axis=1
+    # )
+    
+    # # ✅ 表示部分
+    # st.markdown(
+    #     result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
+    #         .to_html(index=False, escape=False),
+    #     unsafe_allow_html=True
+    # )
+
+    # --- 各カテゴリのAHP重みを取得 ---
     weights_env = priorities_main[0]
     weights_soc = priorities_main[1]
     weights_gov = priorities_main[2]
     
-    dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1) * weights_env
-    dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1) * weights_soc
-    dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1) * weights_gov
+    # --- 各カテゴリの平均スコア（企業ごとの生データ） ---
+    dummy_csr["環境スコア"] = dummy_csr[["気候変動", "資源循環・循環経済", "生物多様性", "自然資源"]].mean(axis=1)
+    dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン", "雇用・労働慣行", "多様性・公平性"]].mean(axis=1)
+    dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護", "統治とリスク管理"]].mean(axis=1)
     
-    # --- 合計スコア（正規化なし） ---
+    # --- 各カテゴリにAHPの重みを掛けて寄与スコア化 ---
+    dummy_csr["環境スコア"] = dummy_csr["環境スコア"] * weights_env
+    dummy_csr["社会スコア"] = dummy_csr["社会スコア"] * weights_soc
+    dummy_csr["ガバナンススコア"] = dummy_csr["ガバナンススコア"] * weights_gov
+    
+    # --- 合計スコア = 3カテゴリの単純合計 ---
     dummy_csr["合計スコア"] = (
         dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     )
@@ -339,28 +386,25 @@ with tabs[3]:
     # --- 上位3社を抽出 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
     
-    # --- ✅ URLをクリック可能に ---
-    result["企業リンク"] = result.apply(
-        lambda x: f"[{x['企業名']}]({x['URL']})" if pd.notna(x["URL"]) and x["URL"] != "" else x["企業名"],
+    # --- ✅ URLをクリック可能に（URL列が存在する前提） ---
+    result["企業名"] = result.apply(
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
+        if pd.notna(x["URL"]) and x["URL"] != "" else x["企業名"],
         axis=1
     )
     
     # --- 表示 ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    st.caption("企業名をクリックすると公式サイトを開けます。")
+    st.caption("各カテゴリはAHPの重みを反映した寄与スコア（点）です。企業名をクリックすると公式サイトを開けます。")
     
-    # 企業名 → クリックで飛べるリンクに変換
-    result["企業名"] = result.apply(
-        lambda x: f'<a href="{x["企業リンク"]}" target="_blank">{x["企業名"]}</a>',
-        axis=1
-    )
-    
-    # 表示する列をクリック可能な企業名に
+    # ✅ 表示部分（to_html 形式）
     st.markdown(
         result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-            .to_html(index=False, escape=False),
+            .to_html(index=False, escape=False, float_format="%.2f"),
         unsafe_allow_html=True
     )
+
+
 
 
 
@@ -466,6 +510,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
