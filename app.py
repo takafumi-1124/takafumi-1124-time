@@ -349,12 +349,19 @@ with tabs[3]:
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     st.caption("企業名をクリックすると公式サイトを開けます。")
     
-    # --- Markdown形式で出力（リンククリック可能） ---
+    # 企業名 → クリックで飛べるリンクに変換
+    result["企業名"] = result.apply(
+        lambda x: f'<a href="{x["企業リンク"]}" target="_blank">{x["企業名"]}</a>',
+        axis=1
+    )
+    
+    # 表示する列をクリック可能な企業名に
     st.markdown(
-        result[["企業リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
+        result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
             .to_html(index=False, escape=False),
         unsafe_allow_html=True
     )
+
 
 
 
@@ -459,6 +466,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
