@@ -299,14 +299,6 @@ with tabs[2]:
 with tabs[3]:
     st.header("投資先提案")
 
-    st.write("🔍 dummy_csr の列：", dummy_csr.columns.tolist())
-    st.write("🔍 result（上位3社）:", result)
-    st.write("🔍 selected_companies:", selected_companies)
-    
-    df_price_raw = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv", index_col=0, parse_dates=True)
-    st.write("🔍 df_price の列（株価データの企業名）:", df_price_raw.columns.tolist())
-
-
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
@@ -396,6 +388,15 @@ with tabs[3]:
     
     # ★ この時点の企業名は df_price と一致している必要がある
     selected_companies = result["企業名"].tolist()
+
+    st.write("🔍 dummy_csr の列：", dummy_csr.columns.tolist())
+    st.write("🔍 result（上位3社）:", result)
+    st.write("🔍 selected_companies:", selected_companies)
+    
+    df_price_raw = pd.read_csv("CSR企業_株価データ_UTF-8（週次）.csv", index_col=0, parse_dates=True)
+    st.write("🔍 df_price の列（株価データの企業名）:", df_price_raw.columns.tolist())
+
+    
     
     # --- 株価データ抽出 ---
     df_price = df_price[selected_companies].dropna()
@@ -523,6 +524,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
