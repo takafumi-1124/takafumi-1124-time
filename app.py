@@ -350,11 +350,12 @@ with tabs[3]:
     st.caption("企業名をクリックすると公式サイトを開けます。")
     
     # --- Markdown形式で出力（リンククリック可能） ---
-    st.write(
+    st.markdown(
         result[["企業リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-        .to_markdown(index=False, floatfmt=".2f"),
+            .to_html(index=False, escape=False),
         unsafe_allow_html=True
     )
+
 
 
 
@@ -458,6 +459,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
