@@ -383,26 +383,31 @@ with tabs[3]:
         dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     )
     
-    # --- 上位3社を抽出 ---
+    # --- 上位3社選定（企業名は純粋に残す）---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
     
-    # --- ✅ URLをクリック可能に（URL列が存在する前提） ---
-    result["企業名"] = result.apply(
-        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
-        if pd.notna(x["URL"]) and x["URL"] != "" else x["企業名"],
+    # ★ この時点の企業名は df_price と一致している必要がある
+    selected_companies = result["企業名"].tolist()
+    
+    # --- 株価データ抽出 ---
+    df_price = df_price[selected_companies].dropna()
+    
+    # ---（略）---
+    
+    # --- HTML 変換は最後だけ ---
+    result_display = result.copy()
+    result_display["企業名"] = result_display.apply(
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>',
         axis=1
     )
     
-    # --- 表示 ---
-    st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    st.caption("各カテゴリはAHPの重みを反映した寄与スコア（点）です。企業名をクリックすると公式サイトを開けます。")
-    
-    # ✅ 表示部分（to_html 形式）
+    # 表示
     st.markdown(
-        result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-            .to_html(index=False, escape=False, float_format="%.2f"),
+        result_display[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
+            .to_html(index=False, escape=False),
         unsafe_allow_html=True
     )
+
 
 
 
@@ -510,6 +515,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
