@@ -300,7 +300,9 @@ with tabs[3]:
     st.header("投資先提案")
 
     # --- Excelの読み込み ---
-    df = pd.read_excel("スコア付きESGデータ.xlsx", sheet_name="Sheet1")
+    df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
+    df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet2")  # ✅ URLシートを追加読み込み
+
 
     # --- URLを企業名で紐付け ---
     df = pd.merge(df, df_url[["社名", "URL"]], how="left", left_on="社名", right_on="社名")
@@ -445,6 +447,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
