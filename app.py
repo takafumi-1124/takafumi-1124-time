@@ -347,10 +347,6 @@ with tabs[3]:
         padding: 10px;
     }
     
-    /* ===== 企業名（左揃え） ===== */
-    .esg-table td:first-child, .esg-table th:first-child {
-        text-align: left !important;
-    }
     
     /* ===== リンク色（ライト/ダーク対応） ===== */
     .esg-table a {
@@ -540,6 +536,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
