@@ -320,7 +320,6 @@ with tabs[3]:
     
     /* ====== 企業名（1列目）は左揃え ====== */
     .esg-table th:first-child, .esg-table td:first-child {
-        text-align: left !important;
         min-width: 250px;
         white-space: nowrap;
     }
@@ -516,6 +515,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
