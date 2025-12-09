@@ -336,10 +336,20 @@ with tabs[3]:
                   if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
+
+    # --- デバッグ：結果の確認 ---
+    st.write("result の列名：", result.columns)
+    st.write("result の中身：")
+    st.write(result)
     
-    # --- 表示用に整形 ---
+    # --- 表示用データフレーム ---
     df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].copy()
     df_show = df_show.round(2)
+    
+    st.write("df_show の型：", type(df_show))
+    st.write("df_show の中身：")
+    st.write(df_show)
+
     
     # --- HTMLテーブル生成（必須設定） ---
     html_table = df_show.to_html(
@@ -506,6 +516,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
