@@ -336,24 +336,32 @@ with tabs[3]:
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
     
-    # スタイル設定
     styled_df = (
         df_show.style
+            # 企業名列（広くする）
             .set_properties(subset=["企業名"], **{
                 "font-weight": "bold",
                 "text-align": "left",
                 "white-space": "nowrap",
-                "width": "350px"    # ← ★ 企業名の列幅をここで調整（例：350px）
+                "width": "350px"     # ← ★ここが企業名専用の幅
             })
+            # 他の列（狭くする）
+            .set_properties(subset=["環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"], **{
+                "text-align": "center",
+                "width": "80px"      # ← ★ここが他の列の幅（調整可）
+            })
+            # ヘッダーなどのスタイル
             .set_table_styles([
                 {"selector": "thead th", "props": [("font-size", "14px"), ("text-align", "center")]},
                 {"selector": "td", "props": [("font-size", "13px")]}
             ])
+            # 数値フォーマット
             .format("{:.2f}", subset=["環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"])
     )
     
-    # 表示（画面いっぱいに広がる & インデックス非表示）
+    # 表示
     st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
 
 
 
@@ -463,6 +471,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
