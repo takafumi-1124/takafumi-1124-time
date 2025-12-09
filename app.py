@@ -303,31 +303,35 @@ with tabs[3]:
     # ① CSS（必ず最初）
     st.markdown("""
     <style>
+    /* ====== テーブル基本設定 ====== */
     .esg-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 15px;
     }
-    .esg-table th {
-        background: #f5f7fa;
-        padding: 10px;
-        border-bottom: 1px solid #ccc;
-        text-align: center !important;    /* ← 中央揃え 強制 */
-    }
-    .esg-table td {
+    
+    /* ====== セル中央揃え（強制） ====== */
+    .esg-table th, .esg-table td {
+        text-align: center !important;
+        vertical-align: middle !important;
         padding: 10px;
         border-bottom: 1px solid #eee;
-        text-align: center !important;     /* ← 中央揃え 強制 */
     }
     
-    /* 企業名（1列目）は左揃えに戻す */
-    .esg-table td:first-child, .esg-table th:first-child {
+    /* ====== 企業名（1列目）は左揃え ====== */
+    .esg-table th:first-child, .esg-table td:first-child {
+        text-align: left !important;
         min-width: 250px;
         white-space: nowrap;
-        text-align: left !important;
     }
     
-    /* リンク */
+    /* ====== 列名背景 ====== */
+    .esg-table th {
+        background: #f5f7fa;
+        border-bottom: 1px solid #ccc;
+    }
+    
+    /* ====== リンク装飾 ====== */
     a {
         color: #1a73e8;
         font-weight: bold;
@@ -338,7 +342,6 @@ with tabs[3]:
     }
     </style>
     """, unsafe_allow_html=True)
-
 
     # ② データ処理
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -364,17 +367,16 @@ with tabs[3]:
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護","統治とリスク管理"]].mean(axis=1) * priorities_main[2]
     dummy_csr["合計スコア"] = dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
 
-    # --- 上位3社 ---
+    # 上位3社
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
-    # --- 企業名リンク ---
+    # リンク付き企業名
     result["企業名リンク"] = result.apply(
         lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
         if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
 
-    # --- 表示用データフレーム ---
     df_show = result[[
         "企業名リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"
     ]].round(2)
@@ -387,15 +389,16 @@ with tabs[3]:
         "合計スコア": "合計<br>スコア"
     }, inplace=True)
 
-    # --- HTMLテーブル生成 ---
+    # HTML生成
     html_table = df_show.to_html(
         index=False,
         escape=False,
         classes="esg-table"
     )
 
-    # --- 表示（CSSの後）
+    # 表示
     st.markdown(html_table, unsafe_allow_html=True)
+
 
 
 
@@ -513,6 +516,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
