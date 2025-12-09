@@ -349,22 +349,22 @@ with tabs[3]:
         display: none !important;
     }
     
-    /* ▼ テーブル全体の幅調整 ▼ */
+    /* ▼ テーブル全体の幅を100%にする ▼ */
     [data-testid="stDataFrame"] table {
         width: 100% !important;
     }
     
-    /* ▼ 企業名の改行を禁止、列幅を広げる ▼ */
+    /* ▼ 企業名の列幅を広げる（ここを変更） ▼ */
     [data-testid="stDataFrame"] table td:first-child,
     [data-testid="stDataFrame"] table th:first-child {
         white-space: nowrap !important;
-        width: 250px !important;   /* ← 企業名の幅は自由に変えてOK */
+        width: 400px !important;   /* ← ★ここを好きな幅に変更（例：400px） */
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # 表示（Streamlit 標準のきれいな表）
     st.dataframe(df_show, hide_index=True)
+
 
 
 
@@ -472,6 +472,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
