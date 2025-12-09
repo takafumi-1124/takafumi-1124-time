@@ -340,27 +340,28 @@ with tabs[3]:
     # HTML テーブルに変換
     html_table = df_show.to_html(index=False, escape=False)
     
-    # カスタム CSS
+    # カスタム CSS（行頭にインデントを入れない！）
     css = """
     <style>
     table {
-        width: 100%;           /* 表全体の幅を広げる */
+        width: 100%;
         border-collapse: collapse;
-        table-layout: fixed;   /* 列幅を自動調整 */
+        table-layout: fixed;
     }
     th, td {
         padding: 8px;
         text-align: center;
     }
     th:first-child, td:first-child {
-        white-space: nowrap;     /* 企業名の改行を禁止 */
-        width: 200px;            /* 企業名列の幅（調整可能） */
+        white-space: nowrap;
+        width: 200px;
     }
     </style>
     """
     
     # 表示
     st.markdown(css + html_table, unsafe_allow_html=True)
+
 
 
 
@@ -466,6 +467,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
