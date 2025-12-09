@@ -301,8 +301,10 @@ with tabs[3]:
 
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
+    st.write("df（Sheet1）の列名：", df.columns)   # ← これを追加！
+
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
-    df = pd.merge(df, df_url, on="銘柄名", how="left")
+    st.write("df_url（Sheet2）の列名：", df_url.columns)
 
 
     # --- 各カテゴリのスコア計算 ---
@@ -493,6 +495,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
