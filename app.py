@@ -321,44 +321,49 @@ with tabs[3]:
     # ① CSS（必ず最初）
     st.markdown("""
     <style>
-    /* ====== テーブル基本設定 ====== */
+    /* ===== テーブル全体 ===== */
     .esg-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 15px;
+        color: var(--text-color);
     }
     
-    /* ====== セル中央揃え（強制） ====== */
-    .esg-table th, .esg-table td {
-        text-align: center !important;
-        vertical-align: middle !important;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    /* ====== 企業名（1列目）は左揃え ====== */
-    .esg-table th:first-child, .esg-table td:first-child {
-        min-width: 250px;
-        white-space: nowrap;
-    }
-    
-    /* ====== 列名背景 ====== */
+    /* ===== ヘッダー行 ===== */
     .esg-table th {
-        background: #f5f7fa;
-        border-bottom: 1px solid #ccc;
+        background-color: var(--secondary-background-color);
+        color: var(--text-color);
+        border-bottom: 1px solid var(--background-color);
+        padding: 10px;
+        text-align: center;
     }
     
-    /* ====== リンク装飾 ====== */
-    a {
-        color: #1a73e8;
+    /* ===== セル ===== */
+    .esg-table td {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        border-bottom: 1px solid var(--secondary-background-color);
+        text-align: center;
+        padding: 10px;
+    }
+    
+    /* ===== 企業名（左揃え） ===== */
+    .esg-table td:first-child, .esg-table th:first-child {
+        text-align: left !important;
+    }
+    
+    /* ===== リンク色（ライト/ダーク対応） ===== */
+    .esg-table a {
+        color: var(--primary-color) !important;
         font-weight: bold;
         text-decoration: none;
     }
-    a:hover {
+    .esg-table a:hover {
         text-decoration: underline;
     }
     </style>
     """, unsafe_allow_html=True)
+
 
     # ② データ処理
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -533,5 +538,6 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
