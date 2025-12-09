@@ -85,7 +85,8 @@ with tabs[0]:
 
     if st.button("次へ ▶"):
             st.session_state.active_tab = 1
-            st.experimental_rerun()
+            st.rerun()
+
 
 
 
@@ -530,6 +531,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
