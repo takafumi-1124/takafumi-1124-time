@@ -360,17 +360,75 @@ a:hover {
 
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
+
+
+    # --- 企業名リンク列を作成 ---
     result["企業名リンク"] = result.apply(
-        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>',
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
+        if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
-
-    df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].round(2)
-
-    html_table = df_show.to_html(index=False, escape=False, classes="esg-table")
-
-    st.markdown(html_table, unsafe_allow_html=True)
-
+    
+    # --- 表示列のみ抽出・丸め ---
+    df_show = result[[
+        "企業名リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"
+    ]].round(2)
+    
+    # --- ★ 列名を2行（改行）に変更 ---
+    df_show.rename(columns={
+        "企業名リンク": "企業名リンク",
+        "環境スコア": "環境<br>スコア",
+        "社会スコア": "社会<br>スコア",
+        "ガバナンススコア": "ガバナンス<br>スコア",
+        "合計スコア": "合計<br>スコア"
+    }, inplace=True)
+    
+    # --- ★ HTMLテーブルに変換 ---
+    html_table = df_show.to_html(
+        index=False, 
+        escape=False,   # リンクと <br> を有効にする
+        classes="esg-table"
+    )
+    
+    # --- ★ CSS（中央揃え + 企業名列幅調整） ---
+    css = """
+    <style>
+    .esg-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+    }
+    .esg-table th {
+        background: #f5f7fa;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: center !important;    /* ← 中央揃え */
+    }
+    .esg-table td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: center !important;     /* ← 中央揃え */
+    }
+    .esg-table td:first-child, .esg-table th:first-child {
+        text-align: left !important;
+        min-width: 200px;
+        white-space: nowrap;
+    }
+    
+    /* リンクデザイン */
+    a {
+        color: #1a73e8;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    """
+    
+    # --- 表示 ---
+    st.markdown(css + html_table, unsafe_allow_html=True)
 
 
 
@@ -485,6 +543,7 @@ a:hover {
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
