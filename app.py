@@ -297,16 +297,48 @@ with tabs[2]:
 
 # --- ④ 投資提案 ---
 with tabs[3]:
-    st.header("投資先提案")
 
-    # --- Excel読み込み ---
+    # --- CSSは必ず最初 ---
+    st.markdown("""
+<style>
+.esg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+.esg-table th {
+    background: #f5f7fa;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+.esg-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+.esg-table th:first-child, .esg-table td:first-child {
+    min-width: 300px;
+    max-width: 450px;
+    white-space: nowrap;
+    text-align: left;
+}
+a {
+    color: #1a73e8;
+    font-weight: bold;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+</style>
+""", unsafe_allow_html=True)
+
+    # --- データ処理 ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
-
-    # --- 結合 ---
     df = pd.merge(df, df_url, on="社名", how="left")
 
-    # --- 計算用データ ---
     dummy_csr = pd.DataFrame({
         "企業名": df["社名"],
         "気候変動": df["CO₂スコア"],
@@ -318,68 +350,27 @@ with tabs[3]:
         "多様性・公平性": df["女性比率スコア"],
         "取締役会構成・少数株主保護": df["取締役評価スコア"],
         "統治とリスク管理": df["内部通報スコア"],
-        "URL": df["URL"],
+        "URL": df["URL"]
     }).fillna(0)
 
-    # --- スコア計算 ---
     dummy_csr["環境スコア"] = dummy_csr[["気候変動","資源循環・循環経済","生物多様性","自然資源"]].mean(axis=1) * priorities_main[0]
     dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン","雇用・労働慣行","多様性・公平性"]].mean(axis=1) * priorities_main[1]
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護","統治とリスク管理"]].mean(axis=1) * priorities_main[2]
     dummy_csr["合計スコア"] = dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
 
-    # --- 上位3社 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
-    # --- リンク付き企業名 ---
     result["企業名リンク"] = result.apply(
-        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
-        if pd.notna(x["URL"]) else x["企業名"],
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>',
         axis=1
     )
 
     df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].round(2)
 
-    # --- CSS ---
-    css = """
-    <style>
-    .esg-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-    }
-    .esg-table th {
-        background: #f5f7fa;
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #ccc;
-    }
-    .esg-table td {
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #eee;
-    }
-    .esg-table td:first-child, .esg-table th:first-child {
-        min-width: 300px;
-        max-width: 450px;
-        white-space: nowrap;
-        text-align: left;
-    }
-    a {
-        color: #1a73e8;
-        font-weight: bold;
-        text-decoration: none;
-    }
-    a:hover {
-        text-decoration: underline;
-    }
-    </style>
-    """
-
-    # --- HTMLテーブル変換 ---
     html_table = df_show.to_html(index=False, escape=False, classes="esg-table")
 
-    # --- 表示（必ずこの1行で！） ---
-    st.markdown(css + html_table, unsafe_allow_html=True)
+    st.markdown(html_table, unsafe_allow_html=True)
+
 
 
 
@@ -494,6 +485,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
