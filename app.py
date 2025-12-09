@@ -311,19 +311,23 @@ with tabs[3]:
     .esg-table th {
         background: #f5f7fa;
         padding: 10px;
-        text-align: center;
         border-bottom: 1px solid #ccc;
+        text-align: center !important;    /* ← 中央揃え 強制 */
     }
     .esg-table td {
         padding: 10px;
-        text-align: center;
         border-bottom: 1px solid #eee;
+        text-align: center !important;     /* ← 中央揃え 強制 */
     }
+    
+    /* 企業名（1列目）は左揃えに戻す */
     .esg-table td:first-child, .esg-table th:first-child {
         min-width: 250px;
         white-space: nowrap;
         text-align: left !important;
     }
+    
+    /* リンク */
     a {
         color: #1a73e8;
         font-weight: bold;
@@ -334,6 +338,7 @@ with tabs[3]:
     }
     </style>
     """, unsafe_allow_html=True)
+
 
     # ② データ処理
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -508,6 +513,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
