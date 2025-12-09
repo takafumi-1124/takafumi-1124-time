@@ -302,23 +302,11 @@ with tabs[3]:
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
-    st.write("df（Sheet1）の先頭：")
-    st.write(df.head())
-    st.write("df の列名：", df.columns.tolist())
     
-    st.write("df_url（URLシート）の先頭：")
-    st.write(df_url.head())
-    st.write("df_url の列名：", df_url.columns.tolist())
-    
-    st.write("merge 後 df の先頭：")
-    df_merged_test = pd.merge(df, df_url, on="社名", how="left")
-    st.write(df_merged_test.head())
-
-    
-    # --- URLを企業名（社名）で紐付け ---
+    # --- URLを社名で結合（重要：これを最初に行う！） ---
     df = pd.merge(df, df_url, on="社名", how="left")
     
-    # --- 各カテゴリのスコア計算 ---
+    # --- スコア計算用データ作成 ---
     dummy_csr = pd.DataFrame({
         "企業名": df["社名"],
         "気候変動": df["CO₂スコア"],
@@ -330,90 +318,31 @@ with tabs[3]:
         "多様性・公平性": df["女性比率スコア"],
         "取締役会構成・少数株主保護": df["取締役評価スコア"],
         "統治とリスク管理": df["内部通報スコア"],
-        "URL": df["URL"],
+        "URL": df["URL"],   # ← merge後なので、ここでURLが入る！
     }).fillna(0)
     
-    # --- 重み計算 ---
+    # --- 計算 ---
     dummy_csr["環境スコア"] = dummy_csr[["気候変動","資源循環・循環経済","生物多様性","自然資源"]].mean(axis=1) * priorities_main[0]
-    dummy_csr["社会スコア"] = dummy_csr[["人権・インクルージョン","雇用・労働慣行","多様性・公平性"]].mean(axis=1) * priorities_main[1]
+    dummy_csr["社会スコア"]  = dummy_csr[["人権・インクルージョン","雇用・労働慣行","多様性・公平性"]].mean(axis=1) * priorities_main[1]
     dummy_csr["ガバナンススコア"] = dummy_csr[["取締役会構成・少数株主保護","統治とリスク管理"]].mean(axis=1) * priorities_main[2]
     dummy_csr["合計スコア"] = dummy_csr["環境スコア"] + dummy_csr["社会スコア"] + dummy_csr["ガバナンススコア"]
     
-    # --- 上位3社を抽出 ---
+    # --- 上位3社 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
     
-    # --- URL付きの企業名リンクを作成 ---
+    # --- 企業名にURLを埋め込む ---
     result["企業名リンク"] = result.apply(
-        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>' 
-                  if pd.notna(x["URL"]) else x["企業名"],
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
+        if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
+    
+    # --- 表示用整形 ---
+    df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].round(2)
+    
+    # --- HTML表示 ---
+    st.markdown(css + df_show.to_html(index=False, escape=False, classes="esg-table"), unsafe_allow_html=True)
 
-    # --- デバッグ：結果の確認 ---
-    st.write("result の列名：", result.columns)
-    st.write("result の中身：")
-    st.write(result)
-    
-    # --- 表示用データフレーム ---
-    df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].copy()
-    df_show = df_show.round(2)
-    
-    st.write("df_show の型：", type(df_show))
-    st.write("df_show の中身：")
-    st.write(df_show)
-
-    
-    # --- HTMLテーブル生成（必須設定） ---
-    html_table = df_show.to_html(
-        index=False,
-        escape=False,  # ←HTMLリンクを有効にする
-        border=0,      # ←余計な枠を消す
-        classes="esg-table"
-    )
-    
-    # --- CSS ---
-    css = """
-    <style>
-    .esg-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-    }
-    
-    .esg-table th {
-        background: #f5f7fa;
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #ccc;
-    }
-    
-    .esg-table td {
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #eee;
-    }
-    
-    /* 企業名列を広げる */
-    .esg-table td:first-child, .esg-table th:first-child {
-        min-width: 300px;
-        max-width: 450px;
-        white-space: nowrap;
-        text-align: left;
-    }
-    
-    a {
-        color: #1a73e8;
-        font-weight: bold;
-        text-decoration: none;
-    }
-    a:hover {
-        text-decoration: underline;
-    }
-    </style>
-    """
-    
-    # --- 表示 ---
-    st.markdown(css + html_table, unsafe_allow_html=True)
 
 
 
@@ -528,6 +457,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
