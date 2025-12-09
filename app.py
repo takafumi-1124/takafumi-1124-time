@@ -332,13 +332,17 @@ with tabs[3]:
     # --- 表示（企業名＋各スコアだけ） ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     
+    # 表示用 DataFrame を準備
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
+    df_show = df_show.reset_index(drop=True)
     
-    # 🔥 インデックスを完全に消す → 新しいインデックスを振らない
-    df_show.index = [""] * len(df_show)
+    # Markdown 形式に変換
+    table_md = df_show.to_markdown(index=False)
     
-    st.table(df_show)
+    # 表示
+    st.markdown(table_md)
+
 
 
 
@@ -441,6 +445,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
