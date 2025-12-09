@@ -301,11 +301,6 @@ with tabs[3]:
 
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
-    df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet2")  # ✅ URLシートを追加読み込み
-
-
-    # --- URLを企業名で紐付け ---
-    df = pd.merge(df, df_url[["社名", "URL"]], how="left", left_on="社名", right_on="社名")
 
     # --- 各カテゴリのスコア計算 ---
     dummy_csr = pd.DataFrame({
@@ -319,7 +314,6 @@ with tabs[3]:
         "多様性・公平性": df["女性比率スコア"],
         "取締役会構成・少数株主保護": df["取締役評価スコア"],
         "統治とリスク管理": df["内部通報スコア"],
-        "URL": df["URL"]  # ✅ URL列を追加
     }).fillna(0)
 
     # --- 重み・スコア計算（変更なし） ---
@@ -447,6 +441,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
