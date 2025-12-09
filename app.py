@@ -297,42 +297,7 @@ with tabs[2]:
 
 # --- ④ 投資提案 ---
 with tabs[3]:
-
-    # --- CSSは必ず最初 ---
-    st.markdown("""
-<style>
-.esg-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 15px;
-}
-.esg-table th {
-    background: #f5f7fa;
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ccc;
-}
-.esg-table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-.esg-table th:first-child, .esg-table td:first-child {
-    min-width: 300px;
-    max-width: 450px;
-    white-space: nowrap;
-    text-align: left;
-}
-a {
-    color: #1a73e8;
-    font-weight: bold;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-</style>
-""", unsafe_allow_html=True)
+    st.header("投資先提案")
 
     # --- データ処理 ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
@@ -360,21 +325,19 @@ a:hover {
 
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
-
-
-    # --- 企業名リンク列を作成 ---
+    # --- 企業名リンク列 ---
     result["企業名リンク"] = result.apply(
         lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
         if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
-    
-    # --- 表示列のみ抽出・丸め ---
+
+    # --- 表示列 ---
     df_show = result[[
         "企業名リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"
     ]].round(2)
-    
-    # --- ★ 列名を2行（改行）に変更 ---
+
+    # --- 列名を2行に ---
     df_show.rename(columns={
         "企業名リンク": "企業名リンク",
         "環境スコア": "環境<br>スコア",
@@ -382,15 +345,15 @@ a:hover {
         "ガバナンススコア": "ガバナンス<br>スコア",
         "合計スコア": "合計<br>スコア"
     }, inplace=True)
-    
-    # --- ★ HTMLテーブルに変換 ---
+
+    # --- HTMLに変換 ---
     html_table = df_show.to_html(
-        index=False, 
-        escape=False,   # リンクと <br> を有効にする
+        index=False,
+        escape=False,
         classes="esg-table"
     )
-    
-    # --- ★ CSS（中央揃え + 企業名列幅調整） ---
+
+    # --- CSS（ここだけでOK） ---
     css = """
     <style>
     .esg-table {
@@ -402,20 +365,18 @@ a:hover {
         background: #f5f7fa;
         padding: 10px;
         border-bottom: 1px solid #ccc;
-        text-align: center !important;    /* ← 中央揃え */
+        text-align: center !important;
     }
     .esg-table td {
         padding: 10px;
         border-bottom: 1px solid #eee;
-        text-align: center !important;     /* ← 中央揃え */
+        text-align: center !important;
     }
-    .esg-table td:first-child, .esg-table th:first-child {
+    .esg-table th:first-child, .esg-table td:first-child {
         text-align: left !important;
-        min-width: 200px;
+        min-width: 250px;
         white-space: nowrap;
     }
-    
-    /* リンクデザイン */
     a {
         color: #1a73e8;
         font-weight: bold;
@@ -426,8 +387,7 @@ a:hover {
     }
     </style>
     """
-    
-    # --- 表示 ---
+
     st.markdown(css + html_table, unsafe_allow_html=True)
 
 
@@ -543,6 +503,7 @@ a:hover {
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
