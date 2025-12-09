@@ -331,10 +331,15 @@ with tabs[3]:
 
     # --- 表示（企業名＋各スコアだけ） ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
+    
+    df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
+    df_show = df_show.round(2)
+    
+    # 🔥 インデックスを消す
+    df_show = df_show.reset_index(drop=True)
+    
+    st.table(df_show)
 
-    st.dataframe(
-        result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-    )
 
 
 
@@ -440,6 +445,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
