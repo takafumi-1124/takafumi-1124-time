@@ -332,38 +332,29 @@ with tabs[3]:
     # --- 表示（企業名＋各スコアだけ） ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     
+    # 表示用 DataFrame
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
     
-    # インデックスを完全に削除する
-    df_show = df_show.reset_index(drop=True)
+    # スタイル設定
+    styled_df = (
+        df_show.style
+            .set_properties(subset=["企業名"], **{
+                "font-weight": "bold",
+                "text-align": "left",
+                "white-space": "nowrap",
+                "width": "350px"    # ← ★ 企業名の列幅をここで調整（例：350px）
+            })
+            .set_table_styles([
+                {"selector": "thead th", "props": [("font-size", "14px"), ("text-align", "center")]},
+                {"selector": "td", "props": [("font-size", "13px")]}
+            ])
+            .format("{:.2f}", subset=["環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"])
+    )
     
-    # --- Streamlit の data editor/table に CSS を当てる ---
-    st.markdown("""
-    <style>
-    /* ▼ インデックス列を非表示にする ▼ */
-    [data-testid="stDataFrame"] div.row-header {
-        display: none !important;
-    }
-    [data-testid="stDataFrame"] div.row-header-content {
-        display: none !important;
-    }
-    
-    /* ▼ テーブル全体の幅を100%にする ▼ */
-    [data-testid="stDataFrame"] table {
-        width: 100% !important;
-    }
-    
-    /* ▼ 企業名の列幅を広げる（ここを変更） ▼ */
-    [data-testid="stDataFrame"] table td:first-child,
-    [data-testid="stDataFrame"] table th:first-child {
-        white-space: nowrap !important;
-        width: 400px !important;   /* ← ★ここを好きな幅に変更（例：400px） */
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    st.dataframe(df_show, hide_index=True)
+    # 表示（画面いっぱいに広がる & インデックス非表示）
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
 
 
 
@@ -472,6 +463,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
