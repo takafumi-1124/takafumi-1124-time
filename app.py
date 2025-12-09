@@ -393,18 +393,18 @@ with tabs[3]:
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
     # リンク付き企業名
-    result["企業名リンク"] = result.apply(
+    result["企業名"] = result.apply(
         lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
         if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
 
     df_show = result[[
-        "企業名リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"
+        "企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"
     ]].round(2)
 
     df_show.rename(columns={
-        "企業名リンク": "企業名リンク",
+        "企業名": "企業名",
         "環境スコア": "環境<br>スコア",
         "社会スコア": "社会<br>スコア",
         "ガバナンススコア": "ガバナンス<br>スコア",
@@ -538,6 +538,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
