@@ -332,11 +332,10 @@ with tabs[3]:
     # --- 表示（企業名＋各スコアだけ） ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
 
-    st.markdown(
+    st.dataframe(
         result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]]
-            .to_markdown(index=False, floatfmt=".2f"),
-        unsafe_allow_html=True
     )
+
 
 
 
@@ -441,6 +440,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
