@@ -335,14 +335,10 @@ with tabs[3]:
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
     
-    # 🔥 インデックスを消す
-    df_show = df_show.reset_index(drop=True)
+    # 🔥 インデックスを完全に消す → 新しいインデックスを振らない
+    df_show.index = [""] * len(df_show)
     
     st.table(df_show)
-
-
-
-
 
 
 
@@ -445,6 +441,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
