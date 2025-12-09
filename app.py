@@ -82,6 +82,13 @@ with tabs[0]:
     age = st.number_input("年齢", 10, 100, 20, key="age")
     job = st.text_input("あなたの職業を入力してください", placeholder="例：大学生")
 
+
+    if st.button("次へ ▶"):
+            st.session_state.active_tab = 1
+            st.experimental_rerun()
+
+
+
 # # --- ② Big Five ---
 with tabs[1]:
     # --- ESG投資とは？説明セクション ---
@@ -523,6 +530,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
