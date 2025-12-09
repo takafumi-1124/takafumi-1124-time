@@ -332,35 +332,40 @@ with tabs[3]:
     # --- 表示（企業名＋各スコアだけ） ---
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     
-    # 表示用 DataFrame
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
+    
+    # インデックスを完全に削除する
     df_show = df_show.reset_index(drop=True)
     
-    # HTML テーブルに変換
-    html_table = df_show.to_html(index=False, escape=False)
-    
-    # カスタム CSS（行頭にインデントを入れない！）
-    css = """
+    # --- Streamlit の data editor/table に CSS を当てる ---
+    st.markdown("""
     <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
+    /* ▼ インデックス列を非表示にする ▼ */
+    [data-testid="stDataFrame"] div.row-header {
+        display: none !important;
     }
-    th, td {
-        padding: 8px;
-        text-align: center;
+    [data-testid="stDataFrame"] div.row-header-content {
+        display: none !important;
     }
-    th:first-child, td:first-child {
-        white-space: nowrap;
-        width: 200px;
+    
+    /* ▼ テーブル全体の幅調整 ▼ */
+    [data-testid="stDataFrame"] table {
+        width: 100% !important;
+    }
+    
+    /* ▼ 企業名の改行を禁止、列幅を広げる ▼ */
+    [data-testid="stDataFrame"] table td:first-child,
+    [data-testid="stDataFrame"] table th:first-child {
+        white-space: nowrap !important;
+        width: 250px !important;   /* ← 企業名の幅は自由に変えてOK */
     }
     </style>
-    """
+    """, unsafe_allow_html=True)
     
-    # 表示
-    st.markdown(css + html_table, unsafe_allow_html=True)
+    # 表示（Streamlit 標準のきれいな表）
+    st.dataframe(df_show, hide_index=True)
+
 
 
 
@@ -467,6 +472,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
