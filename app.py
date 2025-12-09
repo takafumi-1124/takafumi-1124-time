@@ -336,31 +336,26 @@ with tabs[3]:
     df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
     df_show = df_show.round(2)
     
-    styled_df = (
-        df_show.style
-            # 企業名列（広くする）
-            .set_properties(subset=["企業名"], **{
-                "font-weight": "bold",
-                "text-align": "left",
-                "white-space": "nowrap",
-                "width": "350px"     # ← ★ここが企業名専用の幅
-            })
-            # 他の列（狭くする）
-            .set_properties(subset=["環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"], **{
-                "text-align": "center",
-                "width": "80px"      # ← ★ここが他の列の幅（調整可）
-            })
-            # ヘッダーなどのスタイル
-            .set_table_styles([
-                {"selector": "thead th", "props": [("font-size", "14px"), ("text-align", "center")]},
-                {"selector": "td", "props": [("font-size", "13px")]}
-            ])
-            # 数値フォーマット
-            .format("{:.2f}", subset=["環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"])
-    )
+    # ------------ CSS を強制的に適用 ------------
+    st.markdown("""
+    <style>
+    /* ▼ 企業名列の幅を強制的に広げる ▼ */
+    [data-testid="stDataFrame"] div[data-testid="column-header"]:first-child {
+        min-width: 300px !important;
+        max-width: 400px !important;
+    }
+    [data-testid="stDataFrame"] div[data-testid="cell"]:first-child {
+        min-width: 300px !important;
+        max-width: 400px !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    # -----------------------------------------------
     
-    # 表示
-    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+    st.dataframe(df_show, use_container_width=True, hide_index=True)
+
 
 
 
@@ -471,6 +466,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
