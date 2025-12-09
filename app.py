@@ -300,10 +300,6 @@ with tabs[3]:
 
     st.header("投資先提案")
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    
-    # --- 説明文を追加 ---
-    st.subheader("上位3社（ESG優先度測定によるスコア結果）")
-    
     st.caption("""
     ※ 各カテゴリのスコアは、ESG優先度測定の結果を基に算出した寄与スコアです。  
        合計スコアはその合計値を示しています。  
@@ -527,6 +523,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
