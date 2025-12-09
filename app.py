@@ -58,10 +58,16 @@ def ahp_calculation(pairwise_matrix):
 # ==============================================
 st.set_page_config(page_title="ESG投資意思決定", layout="centered")
 st.title("🌱 ESG投資意思決定サイト")
-st.markdown("""
-このアプリは、あなたの嗜好に基づいてESG投資の優先度を分析し、最適な投資先をご提案するツールです。  
-全4ステップで進められ、スマートフォンをご利用の方は、上部のタブを横にスワイプすると操作しやすくなります。
-""")
+st.markdown(
+    """
+    <div style="font-size:15px; color:#666; line-height:1.6; margin-bottom:20px;">
+        このアプリでは、あなたの嗜好に基づいてESG投資の優先度を算出し、投資先候補をご提案します。<br>
+        スマートフォンの方は、上部のタブを横にスワイプして操作できます。
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # --- スライダーの間隔をCSSで調整 ---
 st.markdown(
@@ -527,4 +533,5 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
