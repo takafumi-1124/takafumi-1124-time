@@ -302,6 +302,18 @@ with tabs[3]:
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
+    st.write("df（Sheet1）の先頭：")
+    st.write(df.head())
+    st.write("df の列名：", df.columns.tolist())
+    
+    st.write("df_url（URLシート）の先頭：")
+    st.write(df_url.head())
+    st.write("df_url の列名：", df_url.columns.tolist())
+    
+    st.write("merge 後 df の先頭：")
+    df_merged_test = pd.merge(df, df_url, on="社名", how="left")
+    st.write(df_merged_test.head())
+
     
     # --- URLを企業名（社名）で紐付け ---
     df = pd.merge(df, df_url, on="社名", how="left")
@@ -516,6 +528,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
