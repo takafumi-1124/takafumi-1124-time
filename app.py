@@ -301,6 +301,9 @@ with tabs[3]:
 
     # --- Excelの読み込み ---
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
+    df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
+    df = pd.merge(df, df_url, on="銘柄名", how="left")
+
 
     # --- 各カテゴリのスコア計算 ---
     dummy_csr = pd.DataFrame({
@@ -333,28 +336,52 @@ with tabs[3]:
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
     
     # 表示用 DataFrame
-    df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].copy()
+    df_show = result[["企業名", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア", "URL"]].copy()
     df_show = df_show.round(2)
     
-    # ------------ CSS を強制的に適用 ------------
-    st.markdown("""
+    # 企業名をリンク化
+    df_show["企業名リンク"] = df_show.apply(
+        lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
+                  if pd.notna(x["URL"]) else x["企業名"],
+        axis=1
+    )
+    
+    # ---------- CSS ----------
+    css = """
     <style>
-    /* ▼ 企業名列の幅を強制的に広げる ▼ */
-    [data-testid="stDataFrame"] div[data-testid="column-header"]:first-child {
-        min-width: 300px !important;
-        max-width: 400px !important;
+    table {
+        width: 100%;
+        border-collapse: collapse;
     }
-    [data-testid="stDataFrame"] div[data-testid="cell"]:first-child {
-        min-width: 300px !important;
-        max-width: 400px !important;
-        white-space: nowrap !important;
-        text-overflow: ellipsis;
+    th, td {
+        padding: 8px;
+        text-align: center;
+    }
+    td:first-child, th:first-child {
+        min-width: 350px;
+        max-width: 450px;
+        white-space: nowrap;
+        text-align: left;
+    }
+    a {
+        text-decoration: none;
+        color: #2b6cb0;
+        font-weight: bold;
+    }
+    a:hover {
+        text-decoration: underline;
     }
     </style>
-    """, unsafe_allow_html=True)
-    # -----------------------------------------------
+    """
+    # -------------------------
     
-    st.dataframe(df_show, use_container_width=True, hide_index=True)
+    # HTMLテーブルに変換（企業名リンクを使用）
+    html_table = df_show[["企業名リンク", "環境スコア", "社会スコア", "ガバナンススコア", "合計スコア"]].to_html(
+        index=False, escape=False
+    )
+    
+    st.markdown(css + html_table, unsafe_allow_html=True)
+
 
 
 
@@ -466,6 +493,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
