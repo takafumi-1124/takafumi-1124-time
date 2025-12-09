@@ -296,7 +296,6 @@ with tabs[2]:
 
 
 # --- ④ 投資提案 ---
-# --- ④ 投資提案 ---
 with tabs[3]:
     st.header("投資先提案")
 
@@ -304,7 +303,7 @@ with tabs[3]:
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
 
-    # --- URLを社名で結合 ---
+    # --- 結合 ---
     df = pd.merge(df, df_url, on="社名", how="left")
 
     # --- 計算用データ ---
@@ -319,7 +318,7 @@ with tabs[3]:
         "多様性・公平性": df["女性比率スコア"],
         "取締役会構成・少数株主保護": df["取締役評価スコア"],
         "統治とリスク管理": df["内部通報スコア"],
-        "URL": df["URL"]
+        "URL": df["URL"],
     }).fillna(0)
 
     # --- スコア計算 ---
@@ -331,17 +330,16 @@ with tabs[3]:
     # --- 上位3社 ---
     result = dummy_csr.sort_values("合計スコア", ascending=False).head(3)
 
-    # --- URL を企業名に埋め込む ---
+    # --- リンク付き企業名 ---
     result["企業名リンク"] = result.apply(
         lambda x: f'<a href="{x["URL"]}" target="_blank">{x["企業名"]}</a>'
         if pd.notna(x["URL"]) else x["企業名"],
         axis=1
     )
 
-    # --- 表示用データ ---
     df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].round(2)
 
-    # --- ★ここで CSS を定義！（重要） ---
+    # --- CSS ---
     css = """
     <style>
     .esg-table {
@@ -377,9 +375,11 @@ with tabs[3]:
     </style>
     """
 
-    # --- HTML表示 ---
-    st.markdown(css + df_show.to_html(index=False, escape=False, classes="esg-table"), unsafe_allow_html=True)
+    # --- HTMLテーブル変換 ---
+    html_table = df_show.to_html(index=False, escape=False, classes="esg-table")
 
+    # --- 表示（必ずこの1行で！） ---
+    st.markdown(css + html_table, unsafe_allow_html=True)
 
 
 
@@ -494,6 +494,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
