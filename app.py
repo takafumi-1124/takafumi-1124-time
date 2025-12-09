@@ -341,23 +341,44 @@ with tabs[3]:
     df_show = result[["企業名リンク","環境スコア","社会スコア","ガバナンススコア","合計スコア"]].copy()
     df_show = df_show.round(2)
     
-    # --- CSS（企業名の幅を調整） ---
+    # --- HTMLテーブル生成（必須設定） ---
+    html_table = df_show.to_html(
+        index=False,
+        escape=False,  # ←HTMLリンクを有効にする
+        border=0,      # ←余計な枠を消す
+        classes="esg-table"
+    )
+    
+    # --- CSS ---
     css = """
     <style>
-    table {
+    .esg-table {
         width: 100%;
         border-collapse: collapse;
+        font-size: 15px;
     }
-    th, td {
-        padding: 8px;
+    
+    .esg-table th {
+        background: #f5f7fa;
+        padding: 10px;
         text-align: center;
+        border-bottom: 1px solid #ccc;
     }
-    td:first-child, th:first-child {
-        min-width: 350px;
+    
+    .esg-table td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+    
+    /* 企業名列を広げる */
+    .esg-table td:first-child, .esg-table th:first-child {
+        min-width: 300px;
         max-width: 450px;
-        white-space: nowrap;     /* 改行を防ぐ */
+        white-space: nowrap;
         text-align: left;
     }
+    
     a {
         color: #1a73e8;
         font-weight: bold;
@@ -369,9 +390,9 @@ with tabs[3]:
     </style>
     """
     
-    # --- HTMLとして表示 ---
-    html_table = df_show.to_html(index=False, escape=False)
+    # --- 表示 ---
     st.markdown(css + html_table, unsafe_allow_html=True)
+
 
 
 
@@ -485,6 +506,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
