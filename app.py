@@ -365,6 +365,7 @@ with tabs[3]:
     """, unsafe_allow_html=True)
 
 
+    
     # ② データ処理
     df = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="Sheet1")
     df_url = pd.read_excel("スコア付きESGデータ - コピー.xlsx", sheet_name="URL")
@@ -420,6 +421,7 @@ with tabs[3]:
 
     # 表示
     st.markdown(html_table, unsafe_allow_html=True)
+
 
 
 
@@ -538,6 +540,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
