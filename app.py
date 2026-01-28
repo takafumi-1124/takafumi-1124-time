@@ -93,7 +93,7 @@ all_priorities = {}
 #     job = st.text_input("あなたの職業を入力してください", placeholder="例：大学生")
 
 # # --- ② Big Five ---
-with tabs[1]:
+with tabs[0]:
     # --- ESG投資とは？説明セクション ---
     st.markdown("""
     📘 **ESG投資とは？**  
@@ -204,7 +204,7 @@ with tabs[1]:
 #     st.dataframe(pd.DataFrame(trait_scores.items(), columns=["性格特性", "スコア"]))
 
 # --- ③ AHP ---
-with tabs[2]:
+with tabs[1]:
     st.header("ESG優先度測定")
     st.markdown("""
     以下の項目では、2つの要素が並んで表示されます。  
@@ -383,7 +383,7 @@ with tabs[2]:
 
 
 # --- ④ 投資提案 ---
-with tabs[3]:
+with tabs[2]:
 
     st.header("投資先提案")
     st.subheader("上位3社（ESG優先度測定によるスコア結果）")
@@ -653,6 +653,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
