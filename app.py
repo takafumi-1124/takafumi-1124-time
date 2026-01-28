@@ -86,11 +86,11 @@ tabs = st.tabs(["① ユーザー情報", "② ESGについて","③ ESG優先�
 all_priorities = {}
 
 # --- ① ユーザー情報 ---
-with tabs[0]:
-    st.header("ユーザー情報入力")
-    name = st.text_input("名前", key="name")
-    age = st.number_input("年齢", 10, 100, 20, key="age")
-    job = st.text_input("あなたの職業を入力してください", placeholder="例：大学生")
+# with tabs[0]:
+#     st.header("ユーザー情報入力")
+#     name = st.text_input("名前", key="name")
+#     age = st.number_input("年齢", 10, 100, 20, key="age")
+#     job = st.text_input("あなたの職業を入力してください", placeholder="例：大学生")
 
 # # --- ② Big Five ---
 with tabs[1]:
@@ -653,6 +653,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
