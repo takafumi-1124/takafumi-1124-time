@@ -207,90 +207,115 @@ with tabs[1]:
 with tabs[2]:
     st.header("ESG優先度測定")
     st.markdown("""
-    以下では2つの項目を比較し、どちらをどの程度重視するかを選んでください。  
+    以下の項目では、2つの要素が並んで表示されます。  
+    バーの位置を左右に動かして、どちらをどの程度優先するかを選んでください。
     """)
 
     st.markdown("""
-    **整合性比率（CR）とは？**  
-    比較の一貫性を示す指標です。CRが **0.15以下** なら信頼できる判断とされます。
+    **CIとは？**  
+    CI（Consistency Index）は、AHPにおける判断の一貫性を示す指標です。  
+    値が小さいほど、判断に一貫性があることを意味します。  
+    本アプリでは、CIが **0.15以下** を一つの目安としています。
     """)
 
-    with st.expander("🔍 ESGカテゴリーの補足説明", expanded=True):
+    # ============================
+    # CI 計算用関数（追加）
+    # ============================
+    def calculate_ci(matrix):
+        eigenvalues = np.linalg.eigvals(matrix)
+        lambda_max = np.max(eigenvalues.real)
+        n = matrix.shape[0]
+        ci = (lambda_max - n) / (n - 1)
+        return ci
+
+    # ============================
+    # 補助説明
+    # ============================
+    with st.expander("🔍 補助説明（クリックで展開）", expanded=True):
         st.markdown("""
         **環境（Environment）**  
-        企業が環境への負荷を減らす取り組みをしているか。  
+        企業が環境への負荷を減らす取り組みをしているか  
 
         **社会（Social）**  
-        企業が人や社会に対して配慮しているか。  
+        企業が人や社会に対して配慮しているか  
 
         **ガバナンス（Governance）**  
-        企業の経営の仕組みや透明性が適切に整えられているか。
+        企業の経営の仕組みや透明性が適切に整えられているか
         """)
 
-    # --- E/S/G 比較 ---
+    # ============================
+    # メインカテゴリ（環境・社会・ガバナンス）
+    # ============================
     labels_main = ['環境', '社会', 'ガバナンス']
     matrix_main = np.ones((3, 3))
+
     for i, row in enumerate(labels_main):
         for j, col in enumerate(labels_main):
             if i < j:
                 labels = get_dynamic_scale_labels(row, col)
                 mapping = get_dynamic_label_to_value(row, col)
-                selected = st.select_slider(f"{row} vs {col}", options=labels, value="同じくらい重要")
+                selected = st.select_slider(
+                    f"{row} vs {col}",
+                    options=labels,
+                    key=f"main_{row}_{col}",
+                    value="同じくらい重要"
+                )
                 matrix_main[i][j] = mapping[selected]
                 matrix_main[j][i] = 1 / mapping[selected]
 
-    priorities_main, cr_main = ahp_calculation(matrix_main)
+    priorities_main, _ = ahp_calculation(matrix_main)
+    ci_main = calculate_ci(matrix_main)
 
-    st.dataframe(
-        pd.DataFrame({
-            "項目": labels_main,
-            "優先度（%）": (priorities_main * 100).round(1)
-        }),
-        use_container_width=True,
-        hide_index=True
-    )
+    priority_df = pd.DataFrame({
+        "項目": labels_main,
+        "優先度（%）": (priorities_main * 100).round(1)
+    })
 
-    st.write(f"整合性比率 (CR): {cr_main:.3f}")
+    st.dataframe(priority_df)
+    st.write(f"整合性比率（CI)：{ci_main:.3f}")
 
-    if cr_main > 0.15:
-        st.error("⚠ 判断に矛盾がある可能性があります（CR > 0.15）")
-    elif cr_main > 0.10:
-        st.warning("⚠ やや不安定です（0.10 < CR ≤ 0.15）")
+
+    if ci_main > 0.15:
+        st.error("⚠ CIが高く、判断の一貫性が低い可能性があります。")
+    elif ci_main > 0.10:
+        st.warning("⚠ CIがやや高く、判断が不安定な可能性があります。")
     else:
-        st.success("✅ 一貫した判断です（CR ≤ 0.10）")
+        st.success("✅ CIが低く、判断は概ね一貫していると考えられます。")
 
-    # --- 各カテゴリ ---
+    # ============================
+    # 下位項目（環境・社会・ガバナンス）
+    # ============================
     for group_name, group_items in {
         "環境": ['気候変動', '資源循環・循環経済', '生物多様性', '自然資源'],
         "社会": ['人権・インクルージョン', '雇用・労働慣行', '多様性・公平性'],
         "ガバナンス": ['取締役会構成・少数株主保護', '統治とリスク管理']
     }.items():
+
         st.subheader(f"{group_name}の優先度測定")
 
-        # === 補助説明 ===
         with st.expander("📝 補助説明（クリックで展開）"):
             if group_name == "環境":
                 st.markdown("""
-                **気候変動**：温室効果ガス（CO₂など）の削減にどれだけ取り組んでいるか。  
-                **資源循環・循環経済**：リサイクルや再利用など、廃棄物削減への努力。  
-                **生物多様性**：森林保全や絶滅危惧種保護などへの配慮。  
-                **自然資源**：水や森林などを持続的に使っているか。
+                **気候変動**：温室効果ガス削減への取り組み  
+                **資源循環・循環経済**：廃棄物削減・リサイクル  
+                **生物多様性**：自然環境・生態系の保全  
+                **自然資源**：水・森林などの持続可能な利用
                 """)
             elif group_name == "社会":
                 st.markdown("""
-                **人権・インクルージョン**：人権侵害防止・差別のない職場作り。  
-                **雇用・労働慣行**：働きやすい職場環境や有給取得のしやすさ。  
-                **多様性・公平性**：性別・国籍に関係なく平等な昇進機会。
+                **人権・インクルージョン**：人権配慮と差別防止  
+                **雇用・労働慣行**：働きやすい職場環境  
+                **多様性・公平性**：平等な機会と昇進
                 """)
             elif group_name == "ガバナンス":
                 st.markdown("""
-                **取締役会構成・少数株主保護**：経営のチェック体制が整っているか。  
-                **統治とリスク管理**：法令遵守・リスク管理・内部統制ができているか。
+                **取締役会構成・少数株主保護**：経営監督の仕組み  
+                **統治とリスク管理**：法令遵守・内部統制
                 """)
 
-        # === AHP比較 ===
         size = len(group_items)
         matrix = np.ones((size, size))
+
         for i in range(size):
             for j in range(i + 1, size):
                 labels = get_dynamic_scale_labels(group_items[i], group_items[j])
@@ -298,36 +323,45 @@ with tabs[2]:
                 selected = st.select_slider(
                     f"{group_items[i]} vs {group_items[j]}",
                     options=labels,
+                    key=f"{group_name}_{i}_{j}",
                     value="同じくらい重要"
                 )
                 matrix[i][j] = mapping[selected]
                 matrix[j][i] = 1 / mapping[selected]
 
-        # === 結果計算 ===
-        priorities, cr = ahp_calculation(matrix)
+        priorities, _ = ahp_calculation(matrix)
+        ci = calculate_ci(matrix)
 
-        # === 表示 ===
-        st.dataframe(
-            pd.DataFrame({
-                "項目": group_items,
-                "優先度（%）": (priorities * 100).round(1)
-            }),
-            use_container_width=True,
-            hide_index=True
-        )
+        df_show = pd.DataFrame({
+            "項目": group_items,
+            "優先度（%）": (priorities * 100).round(1)
+        })
 
-        # === 整合性比率の出力 ===
-        st.write(f"整合性比率 (CR): {cr:.3f}")
-        if cr > 0.15:
-            st.error("⚠ 判断に矛盾がある可能性があります（CR > 0.15）")
-        elif cr > 0.10:
-            st.warning("⚠ やや不安定です（0.10 < CR ≤ 0.15）")
+        st.dataframe(df_show)
+        st.write(f"整合性比率（CI)：{ci:.3f}")
+
+        if ci > 0.15:
+            st.error("⚠ CIが高く、判断の一貫性が低い可能性があります。")
+        elif ci > 0.10:
+            st.warning("⚠ CIがやや高く、判断が不安定な可能性があります。")
         else:
-            st.success("✅ 一貫した判断です（CR ≤ 0.10）")
+            st.success("✅ CIが低く、判断は概ね一貫していると考えられます。")
 
-        # === 結果を保存 ===
         all_priorities[group_name] = dict(zip(group_items, priorities))
 
+    # ============================
+    # 結果まとめ
+    # ============================
+    st.divider()
+    st.subheader("AHP結果のまとめ")
+
+    top_category = labels_main[np.argmax(priorities_main)]
+    if top_category in all_priorities:
+        top_sub = max(all_priorities[top_category].items(), key=lambda x: x[1])[0]
+        st.markdown(f"""
+        あなたが最も重視しているのは **「{top_category}」** です。  
+        その中でも特に **「{top_sub}」** を重視している傾向が見られます。
+        """)
     st.divider()
     st.subheader("ESG優先度の結果まとめ")
     top_category = labels_main[np.argmax(priorities_main)]
@@ -611,6 +645,7 @@ with tabs[3]:
     ax.set_xlabel("リスク（標準偏差）")
     ax.set_ylabel("期待リターン")
     st.pyplot(fig)
+
 
 
 
